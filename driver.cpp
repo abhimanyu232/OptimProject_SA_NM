@@ -13,7 +13,7 @@ double (*foo)(int  , const VectorXd& );
 
 cout << "Please choose the test function ; Enter 1 , 2 , 3 OR 4\n "
 "\tCase 1: Rosenbrock 2D \n\tCase 2:Rosenbrock Multidimensional \n\t"
-"Case 3: Sphere Multidimensional \n\t Case 4: Eggholder 2D" << endl;
+"Case 3: Sphere Multidimensional \n\tCase 4: Eggholder 2D" << endl;
 int choice;
 while (!(cin>>choice) || choice > 4 || choice < 1){
   cin.clear();
@@ -43,7 +43,7 @@ switch (choice) {
 // rough idea : implement with templates
 
 
-VectorXd X(dim);    // vector or matrix? 
+VectorXd X(dim);    // vector or matrix?
 X = VectorXd::Random(dim);
 cout <<"X: \n" << X << endl;
 
