@@ -1,4 +1,4 @@
-EXE=optimize
+EXE=optimize.out
 CXX = g++
 CXXFLAGS = --std=c++11 -O3 -Iinc -Wall -Wall
 LDLIBS += -lm
