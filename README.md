@@ -15,7 +15,9 @@ This only affects your local copy of the code
 Sometimes it might ask you to perform a *git pull* first if there are newer 
 versions of the code online, than your local copy. Good idea to perform a pull 
 everytime *before* you start working on code (not a good idea professionally, 
-but it doesnt matter here).  
+but it doesnt matter here). 
+Might need to setup a [SSH key](https://gitlab.ethz.ch/profile/keys). 
+Else you might need to keep entering password everytime you pull/push.   
 
 [15 minute interactive tutorial to get started.](https://try.github.io/levels/1/challenges/1)
 Since I have skipped a lot of the getting started stuff. I used this to get started as well.
