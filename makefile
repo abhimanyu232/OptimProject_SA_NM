@@ -1,10 +1,8 @@
+EXE=optimize
 CXX = g++
-CXXFLAGS = -O3 --std=C++11 -Iinclude
-CFLAGS += -Wall -Wall
+CXXFLAGS = --std=c++11 -O3 -Iinc -Wall -Wall
 LDLIBS += -lm
 
-INC =
-EXE=optimize
 SRC_DIR=src
 SRC=$(wildcard $(SRC_DIR)/*.cpp)
 OBJ_DIR=intermediate
@@ -18,7 +16,7 @@ $(EXE): $(OBJ)
 		$(CXX) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-		$(CXX) $(CXXFLAGS) $(CFLAGS) -c $< -o $@
+		$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CFLAGS) -c $< -o $@
 
 clean:
 		$(RM) $(OBJ)
