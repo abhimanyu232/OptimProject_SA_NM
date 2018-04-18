@@ -43,7 +43,7 @@ switch (choice) {
 // rough idea : implement with templates
 
 
-VectorXd X(dim);
+VectorXd X(dim);    // vector or matrix? 
 X = VectorXd::Random(dim);
 cout <<"X: \n" << X << endl;
 
