@@ -3,7 +3,7 @@
 #include<math.h>
 #include<assert.h>
 
-#define DIM_MAX 10
+#define DIM_MAX 20
 
 
 using namespace Eigen;
@@ -20,3 +20,5 @@ double sphere_Nd(int dim,const VectorXd& X );
 
 //template <typename Derived>// use Vector2d
 double egghol(int dim, const VectorXd& X);
+
+// function overloading for Nelder Mead MatrixXd implementation
