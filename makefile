@@ -22,7 +22,7 @@ clean:
 		$(RM) $(OBJ)
 		rm -f $(EXE)
 
-clean_all:
-		$(RM) $(OBJ)
-		rm -f $(EXE)
-		rm -R results
+#clean_all:
+#		$(RM) $(OBJ)
+#		rm -f $(EXE)
+#		rm -R results
