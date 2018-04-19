@@ -18,16 +18,17 @@ int main(){
     "1: Nelder Mead \n2: Simulated Annealing" << endl;
   }
 
+
     // set function pointer optimize to point to chosen optimisation algo.
     // declare appropriate function pointer foo for fitness evaluation.
   if (opt_choice == 1){
-    double (*foo)(int , const MatrixXd& ); // for NM with Matrix input
+    static double (*foo)(int , const MatrixXd& ); // for NM with Matrix input
     // function pointer to point to nelder_mead
-    double (*optimize)(double (*)(int, const MatrixXd&)) = nelderMead;}
+    static int (*optimize)(int, double (*)(int, const MatrixXd&)) = nelderMead;}
   else if (opt_choice == 2){
-    double (*foo)(int , const VectorXd& ); // for simAnn with Vector input
+    static double (*foo)(int , const VectorXd& ); // for simAnn with Vector input
     // function pointer to point to simulated annealing
-    double (*optimize)(double (*)(int, const VectorXd&)) = simAnnealing;}
+    static int (*optimize)(int, double (*)(int, const VectorXd&)) = simAnnealing;}
   else {std::cout << "ERROR: invalid optimisation algo choice" << '\n'; return 0;}
 
 
@@ -71,6 +72,6 @@ int main(){
 
   double fit = foo(dim,X);
   cout << "fitness = " << fit << endl;
-
+  optimize(dim,foo)
 return 0;
 }
