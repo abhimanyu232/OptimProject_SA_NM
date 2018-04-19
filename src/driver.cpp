@@ -9,7 +9,10 @@ while (!(cin >> dim) || dim < 2 || dim > DIM_MAX){
   cout << " value out of range ( 2 <= Dimension <= " << DIM_MAX << " )" << '\n';
 }
 
-double (*foo)(int  , const VectorXd& );
+// generic function pointer for fitness function
+double (*fooS)(int  , const VectorXd& ); // for simAnn with Vector input
+double (*fooN)(int  , const MatrixXd& ); // for NM with Matrix input
+
 
 cout << "Please choose the test function ; Enter 1 , 2 , 3 OR 4\n "
 "\tCase 1: Rosenbrock 2D \n\tCase 2:Rosenbrock Multidimensional \n\t"
@@ -17,8 +20,7 @@ cout << "Please choose the test function ; Enter 1 , 2 , 3 OR 4\n "
 int choice;
 while (!(cin>>choice) || choice > 4 || choice < 1){
   cin.clear();
-  cin.ignore(1000,'\n');
-  //cin.ignore(std::numeric_limits<std::streamsize>::max(),"\n");
+  cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
   cout<<"please enter integers 1 2 3 or 4 only"<<endl;
   cin >> choice;
 }
@@ -40,7 +42,6 @@ switch (choice) {
     break;
 }
 
-// rough idea : implement with templates
 
 
 VectorXd X(dim);    // vector or matrix?

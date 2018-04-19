@@ -23,7 +23,11 @@ else if fit(new) > fit(curr) && p(k,Temp) > rand()
 #include "optimisation.h"
 #include "simAnn.h"
 
-int simAnnealing( VectorXd X, double (*fit)() ){
+// DECIDE IF YOU WANT TO PASS THE VECTOR AS A POINTER OR CARRY OUT
+// EVERYTHING INSDE THE simAnnealing FUNCTION WITH DRIVER JUST CALLING IT
+
+// typedef double (*fitPtr)(int, const VectorXd&);
+int simAnnealing( double (*fit)(int, const VectorXd&) ){
   double temp;
   int choice = 0;
 
@@ -32,6 +36,8 @@ int simAnnealing( VectorXd X, double (*fit)() ){
   "2: temp = T0/k\n"
   "3: temp = T0/log(k)\n";
   while( !(std::cin >> choice;) || (choice < 1) || (choice > 3) ){
+    cin.clear();
+    cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
     std::cout << "please enter a valid choice\n "
     "1: temp = T0*pow(0.95,k)\n "
     "2: temp = T0/k\n"
