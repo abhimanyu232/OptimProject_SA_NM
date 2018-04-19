@@ -1,7 +1,5 @@
-#ignore all object files 
-intermediate/ 
-
-#ignore executable 
-*out 
-
-
+#ignore all object files
+intermediate/
+test/
+#ignore executable
+*out
