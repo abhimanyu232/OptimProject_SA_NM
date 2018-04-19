@@ -7,12 +7,10 @@ int dim = 2;
 cout << "enter search space dimension ( 2 <= Dim <= DIM_MAX ) \n" << endl;
 while (!(cin >> dim) || dim < 2 || dim > DIM_MAX){
   cout << " value out of range ( 2 <= Dimension <= " << DIM_MAX << " )" << '\n';
-}
-
+// if statement asking for nelder mead or si Ann. define foo hence
 // generic function pointer for fitness function
-double (*fooS)(int  , const VectorXd& ); // for simAnn with Vector input
-double (*fooN)(int  , const MatrixXd& ); // for NM with Matrix input
-
+double (*foo)(int  , const VectorXd& ); // for simAnn with Vector input
+double (*foo)(int  , const MatrixXd& ); // for NM with Matrix input
 
 cout << "Please choose the test function ; Enter 1 , 2 , 3 OR 4\n "
 "\tCase 1: Rosenbrock 2D \n\tCase 2:Rosenbrock Multidimensional \n\t"
