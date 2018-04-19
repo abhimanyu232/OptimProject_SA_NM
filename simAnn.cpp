@@ -1,4 +1,3 @@
-
 // simulated annealing //
 /*
 VectorXd = Matrix<double, dim, 1>
@@ -25,12 +24,12 @@ else if fit(new) > fit(curr) && p(k,Temp) > rand()
 
 // DECIDE IF YOU WANT TO PASS THE VECTOR AS A POINTER OR CARRY OUT
 // EVERYTHING INSDE THE simAnnealing FUNCTION WITH DRIVER JUST CALLING IT
+int simAnnealing(int dim, double (*fit)(int, const VectorXd&) ){
+  Eigen::VectorXd curr,best,next;
 
-// typedef double (*fitPtr)(int, const VectorXd&);
-int simAnnealing(int dim, double (*fit)(int, const VectorXd& fitness) ){
   double temp;
   int choice = 0;
-
+  // CHOICE OF COOLING SCHEME //
   cout << "select cooling scheme:\n"
   "1: temp = T0*pow(0.95,k)\n "
   "2: temp = T0/k\n"
@@ -50,6 +49,7 @@ return 0;
 
 
 // k annealing parameter // same as iteration until reannealing //
+// initial temperature set in simAnn.h //
 bool cooling(const int choice, int k, double *temp){
   switch (choice) {
   case 1: *temp = T0*pow(0.95,k); return 1;
@@ -62,34 +62,28 @@ bool cooling(const int choice, int k, double *temp){
 }
 }
 
-//~~~~~~~~~~~Test Function Definitions~~~~~~~~~~~~~~~~~~~~//
 
+//~~~~~~~~~~~Test Function Definitions~~~~~~~~~~~~~~~~~~~~//
 
 // 2D Rosenbrock Function
 // global minima f(x,y) = 0 at (x,y) = (a,a*a)
-//
-//template <typename Derived> // use Vector2d
 double  rosenbrock_2d(int dim, const VectorXd& X){
   assert(dim==2);
-  double r2d =  pow(1 - X(0),2) + 100*pow(X(1) - X(0),2);
+  std::cout << X << '\n';
+  double r2d =  1.;
 return r2d;
 }
 
 // Multidimensional Rosenbrock Function
 // global minima f(x1,.....,xN) = 0 at (x1,.....,xN) = (1,.....,1)
-//
-//template <typename Derived> // use VectorXd
 double rosenbrock_Nd(int dim ,const VectorXd& X){
   double rNd =0.;
-  for (int i=0; i<dim-1;i++)
-      rNd = rNd + ( 100*(pow(X(i+1) - pow(X(i),2),2)) + pow(1-X(i),2) );
+  std::cout << X << '\n';
 return rNd;
 }
 
 // Multi Dimensional Sphere Function
 // global minima at f(x1,.....,xN) = 0 at (x1,......,xN) = (0,......,0)
-//
-//template <typename Derived>// use VectorNd
 double sphere_Nd(int dim,const VectorXd& X ){
   double sph = 0;
   for (int i =0; i<dim ; i++)
@@ -99,12 +93,10 @@ return sph;
 
 //2D Eggholder Function
 //  global minima at f(x,y) = -959.6407 at (x,y) = (512,404.2319)
-//
-//template <typename Derived>// use Vector2d
 double egghol(int dim, const VectorXd& X){
   assert(dim == 2);
   double eggh = -1*(X(1)+47)*sin(sqrt(fabs(X(0)+(X(1)+47))))
-                            - X(0)*sin(sqrt(fabs(X(0)-(X(1)+47))));
+                      - X(0)*sin(sqrt(fabs(X(0)-(X(1)+47))));
 return eggh;
 }
 

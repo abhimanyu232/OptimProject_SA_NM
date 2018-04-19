@@ -3,11 +3,13 @@
 
 int main(){
 
+  // enter problem dimension //
   int dim;
   cout << "enter search space dimension ( 2 <= Dim <= DIM_MAX ) \n" << endl;
   while (!(cin >> dim) || dim < 2 || dim > DIM_MAX)
     cout << " value out of range ( 2 <= Dimension <= " << DIM_MAX << " )" << '\n';
 
+  // choice of optimisation algorithm //
   int opt_choice;
   cout << "Choose optimisation method \n"
   "1: Nelder Mead  \n2: Simulated Annealing" << endl;
@@ -16,19 +18,20 @@ int main(){
     "1: Nelder Mead \n2: Simulated Annealing" << endl;
   }
 
-// generic function pointer for fitness functions and optimisation algo.
+    // set function pointer optimize to point to chosen optimisation algo.
+    // declare appropriate function pointer foo for fitness evaluation.
   if (opt_choice == 1){
     double (*foo)(int , const MatrixXd& ); // for NM with Matrix input
-// function pointer to point to nelder_mead
+    // function pointer to point to nelder_mead
     double (*optimize)(double (*)(int, const MatrixXd&)) = nelderMead;}
   else if (opt_choice == 2){
     double (*foo)(int , const VectorXd& ); // for simAnn with Vector input
-// function pointer to point to simulated annealing
+    // function pointer to point to simulated annealing
     double (*optimize)(double (*)(int, const VectorXd&)) = simAnnealing;}
   else {std::cout << "ERROR: invalid optimisation algo choice" << '\n'; return 0;}
 
 
-
+  // CHOICE OF TEST FUNCTION //
   cout << "Please choose the test function ; Enter 1 , 2 , 3 OR 4\n "
   "\tCase 1: Rosenbrock 2D \n\tCase 2:Rosenbrock Multidimensional \n\t"
   "Case 3: Sphere Multidimensional \n\tCase 4: Eggholder 2D" << endl;

@@ -1,7 +1,7 @@
 #include "optimisation.h"
 
-#define TOL 1e-16
+// set initial temperature //
 #define T0  100
 
 bool cooling(int choice, double temp);
-int simAnnealing(int dim, double (*foo)(int, const VectorXd&));
+int simAnnealing(int dim, double (*fitness)(int, const VectorXd&));

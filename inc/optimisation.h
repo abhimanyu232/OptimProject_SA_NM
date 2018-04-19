@@ -4,24 +4,25 @@
 #include<assert.h>
 
 #define DIM_MAX 20
-
+#define TOL 1e-16
 
 using namespace Eigen;
 using namespace std;
 
-//template <typename Derived> // use Vector2d
-double rosenbrock_2d(int dim, const VectorXd& X);
-double rosenbrock_2d(int dim, const MatrixXd& X);
 
-//template <typename Derived> // use VectorXd
-double rosenbrock_Nd(int dim ,const VectorXd& X);
-double rosenbrock_Nd(int dim ,const MatrixXd& X);
+// fitness functions overloaded for different implementations
+// one each for Nelder Mead and Simulated Annealing
+// necessary definitions in respective .cpp files.
+// driver.cpp MUST BE COMPILED with either nelder_mead.cpp or simAnn.cpp
 
-//template <typename Derived>// use VectorNd
-double sphere_Nd(int dim,const VectorXd& X );
-double sphere_Nd(int dim,const MatrixXd& X );
+double rosenbrock_2d(int dim, const VectorXd& X); // for simAnn
+double rosenbrock_2d(int dim, const MatrixXd& X); // for nelderMead
 
-//template <typename Derived>// use Vector2d
-double egghol(int dim, const VectorXd& X);
-double egghol(int dim, const MatrixXd& X);
-// function overloading for Nelder Mead MatrixXd implementation
+double rosenbrock_Nd(int dim ,const VectorXd& X); // for simAnn
+double rosenbrock_Nd(int dim ,const MatrixXd& X); // for nelderMead
+
+double sphere_Nd(int dim,const VectorXd& X ); // for simAnn
+double sphere_Nd(int dim,const MatrixXd& X ); // for nelderMead
+
+double egghol(int dim, const VectorXd& X); // for simAnn
+double egghol(int dim, const MatrixXd& X); // for nelderMead
