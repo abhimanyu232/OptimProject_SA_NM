@@ -11,14 +11,17 @@ using namespace std;
 
 //template <typename Derived> // use Vector2d
 double rosenbrock_2d(int dim, const VectorXd& X);
+double rosenbrock_2d(int dim, const MatrixXd& X);
 
 //template <typename Derived> // use VectorXd
 double rosenbrock_Nd(int dim ,const VectorXd& X);
+double rosenbrock_Nd(int dim ,const MatrixXd& X);
 
 //template <typename Derived>// use VectorNd
 double sphere_Nd(int dim,const VectorXd& X );
+double sphere_Nd(int dim,const MatrixXd& X );
 
 //template <typename Derived>// use Vector2d
 double egghol(int dim, const VectorXd& X);
-
+double egghol(int dim, const MatrixXd& X);
 // function overloading for Nelder Mead MatrixXd implementation
