@@ -56,13 +56,14 @@ int simAnnealing(int testfcn, int dim, double (*fit)(int, const VectorXd&) ){
 
   temp = T0;
   int iter = 0;
-  int k,acnt;
+  int k=0;
+  int acnt=0;
   double residual = 1.;
   do {
     iter++;
-    k=iter;
+    k++;
     //k=iter-(reanneal_step*100); // changes after reannealing //
-    //
+    // if acnt%100 : k = reset  : temp = reset
     // insert step ensure domain boundedness and correct //
     //
       next = curr + VectorXd::Random(dim)*MAX_STEP; // can implement differently
@@ -73,6 +74,7 @@ int simAnnealing(int testfcn, int dim, double (*fit)(int, const VectorXd&) ){
       if (fit_next<fit_curr) {    // good point
           curr = next;
           fit_curr = fit_next;
+          acnt++;                 // acceptance count increment
           if (fit_next<fit_best) {
               best = next;
               fit_best=fit_next;
