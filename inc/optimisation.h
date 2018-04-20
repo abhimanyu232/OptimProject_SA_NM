@@ -7,6 +7,7 @@
 
 #define DIM_MAX 20
 #define TOL 1e-16
+#define ITER_MAX 1000
 
 using namespace Eigen;
 using namespace std;
@@ -31,5 +32,5 @@ double sphere_Nd(int dim,const MatrixXd& X ); // for nelderMead
 double egghol(int dim, const VectorXd& X); // for simAnn
 double egghol(int dim, const MatrixXd& X); // for nelderMead
 
-int simAnnealing(int dim, double (*fitness)(int, const VectorXd&));
-int nelderMead(int dim, double (*fitness)(int, const MatrixXd&));
+int simAnnealing(int testfcn, int dim, double(*fitness)(int, const VectorXd&));
+int nelderMead(int testfcn, int dim, double(*fitness)(int, const MatrixXd&));

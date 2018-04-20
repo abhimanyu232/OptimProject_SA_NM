@@ -2,7 +2,7 @@
 #include"nelder_mead.h"
 
 
-int nelderMead(int dim, double (*fit)(int, const MatrixXd&)){
+int nelderMead(int testfcn, int dim, double (*fit)(int, const MatrixXd&)){
 // use fit as a black box fitness function.it takes arguement of type MatrixXd.
 // where it points to is decided by user // switch statement from driver.cpp
 
