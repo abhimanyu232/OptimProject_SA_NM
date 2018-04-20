@@ -11,6 +11,10 @@ int nelderMead(int dim, double (*fit)(int, const MatrixXd&)){
 // everything that needs to be accessed by driver.cpp needs to be declared in
 // optimisation.h and defined in driver.cpp
 
+// imo the points could be stored in matrix form with dim+1 rows and dim cols.
+// it could be implemented as MatrixXd points(dim+1,dim)
+// each row stores 1 point coordinates in dim dimensional space
+// but feel free to use another method if you like
 
 return 0;
 }

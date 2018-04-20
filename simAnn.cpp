@@ -43,6 +43,7 @@ int simAnnealing(int dim, double (*fit)(int, const VectorXd&) ){
     "3: temp = T0/log(k)\n";
   }
 
+curr = vectorXd::Random()
 
 return 0;
 }
