@@ -16,13 +16,17 @@ using namespace std;
 
 typedef double (*fitVXd)(int, const VectorXd&);
 typedef double (*fitMXd)(int, const MatrixXd&);
+
+int testFCN_choice(fitVXd& fcnPtr);
+int testFCN_choice(fitMXd& fcnPtr);
+
+int simAnnealing(int testfcn, int dim, fitVXd);
+int nelderMead(int testfcn, int dim, fitMXd);
+
 // fitness functions overloaded for different implementations
 // one each for Nelder Mead and Simulated Annealing
 // necessary definitions in respective .cpp files.
 // driver.cpp MUST BE COMPILED with either nelder_mead.cpp or simAnn.cpp
-int testFCN_choice(fitVXd& fcnPtr);
-int testFCN_choice(fitMXd& fcnPtr);
-
 double rosenbrock_2d(int dim, const VectorXd& X); // for simAnn
 double rosenbrock_2d(int dim, const MatrixXd& X); // for nelderMead
 
@@ -34,6 +38,3 @@ double sphere_Nd(int dim,const MatrixXd& X ); // for nelderMead
 
 double egghol(int dim, const VectorXd& X); // for simAnn
 double egghol(int dim, const MatrixXd& X); // for nelderMead
-
-int simAnnealing(int testfcn, int dim, double(*fitness)(int, const VectorXd&));
-int nelderMead(int testfcn, int dim, double(*fitness)(int, const MatrixXd&));

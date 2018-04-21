@@ -2,9 +2,10 @@
 #include"nelder_mead.h"
 
 
-int nelderMead(int testfcn, int dim, double (*fit)(int, const MatrixXd&)){
-// use fit as a black box fitness function.it takes arguement of type MatrixXd.
+int nelderMead(int testfcn, int dim, fitMXd fit){
+// use fit as a black box fitness function.
 // where it points to is decided by user // switch statement from driver.cpp
+// it takes arguement of types int, MatrixXd. SEE Function Definitions below.
 
 // add any function/variables declarations that are needed only for the nelder
 //mead method in nelder_mead.h // add corresponding declarations here //

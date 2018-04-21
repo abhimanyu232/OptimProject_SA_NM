@@ -1,57 +1,33 @@
-// simulated annealing //
-/*
-VectorXd = Matrix<double, dim, 1>
-RowVectorXd = Matrix<double,1,dim>
-RowVectorXd curr, new, best_pt
-
-1.  Temperature = 100 ; curr = random() ; best_pt = curr;
-do {
-2. new = curr  + delta //
-3. if fit(new) <fit(curr)
-        curr  = new
-        if fit(new) < fit(best)
-        best = curr
-else if fit(new) > fit(curr) && p(k,Temp) > rand()
-           curr =  new
-          }
-4. Temp = Temp*whatever [cooling scheme]
-  }
-5. // REANNEALING??
-*/
-
 #include "optimisation.h"
 #include "simAnn.h"
 
 
-int simAnnealing(int testfcn, int dim, double (*fit)(int, const VectorXd&) ){
+int simAnnealing(int testfcn, int dim, fitVXd fit){
   // random number seeding //
   std::random_device rd;
   std::mt19937 gen(rd());
 
-  double temp;
   // CHOICE OF COOLING SCHEME //
   int coolScheme = 0;
-  cooling_choice(&coolScheme);
+  cooling_choice(&coolScheme);  // sets variable coolScheme
 
   // initialise search space //
   Eigen::VectorXd curr,next,best;
   curr = VectorXd::Random(dim)*1000; // random points b/w (-1000,1000)
   best = curr;
-  std::cout << best  << '\n';
+  //std::cout << best  << '\n';
 
   double fit_curr,fit_next,fit_best;
   fit_curr = fit(dim,curr);
-  std::cout << "/* message */" << '\n';
-
   fit_best = fit_curr;
-
+  //std::cout << "/* test message */" << '\n';
   cout << "Iteration\tFitness Value\tBest Value" << '\n';
 
-  temp = T0;
-  int iter = 0;
-  int k=0;
-  int acnt=0;
-  double residual = 1.;
+  int k=0;        // annealing parameter
+  int iter=0;
+  int acnt=0;     // counts number of accepted values of next
+  double residual=1.;
+  double temp=T0;
   do {
     iter++;
     k++;
@@ -136,7 +112,6 @@ float PAccept(double temp, double fit_curr, double fit_next){
 return exp((-1)*(fabs(fit_curr-fit_next))/temp);
 }
 
-
 //~~~~~~~~~~~Test Function Definitions~~~~~~~~~~~~~~~~~~~~//
 // 2D Rosenbrock Function
 // global minima f(x,y) = 0 at (x,y) = (a,a*a)
@@ -177,3 +152,25 @@ return eggh;
 // Schaffer Function : has a plateau
 // Cross in Tray or Himmebau : multiple global minimas
 // dejong5 fcn
+
+
+// simulated annealing //
+/*
+VectorXd = Matrix<double, dim, 1>
+RowVectorXd = Matrix<double,1,dim>
+RowVectorXd curr, new, best_pt
+
+1.  Temperature = 100 ; curr = random() ; best_pt = curr;
+do {
+2. new = curr  + delta //
+3. if fit(new) <fit(curr)
+        curr  = new
+        if fit(new) < fit(best)
+        best = curr
+else if fit(new) > fit(curr) && p(k,Temp) > rand()
+           curr =  new
+          }
+4. Temp = Temp*whatever [cooling scheme]
+  }
+5. // REANNEALING??
+*/

@@ -22,13 +22,13 @@ int main(){
   srand((unsigned int) time(0));
 
   if (opt_choice == 1){ // Nelder Mead with Matrix input
-      double (*foo)(int , const MatrixXd& ) = NULL;
+      fitMXd foo = NULL;        // funcion pointer for fitness function
       testfcn = testFCN_choice(foo);
       std::cout << "this is nelderMead" << '\n';
       nelderMead(testfcn,dim,foo);
   }
   else if (opt_choice == 2){ //  simAnn with Vector input
-      double (*foo)(int , const VectorXd& ) = NULL;
+      fitVXd foo = NULL;        // function pointer for fitness function
       testfcn=testFCN_choice(foo);
       std::cout << "this is simAnn" << '\n';
       simAnnealing(testfcn,dim,foo);
