@@ -30,29 +30,19 @@ int simAnnealing(int testfcn, int dim, double (*fit)(int, const VectorXd&) ){
 
   double temp;
   // CHOICE OF COOLING SCHEME //
-  int choice = 0;
-  cout << "select cooling scheme:\n"
-  "1: temp = T0*pow(0.95,k)\n "
-  "2: temp = T0/k\n"
-  "3: temp = T0/log(k)\n";
-  while( !(std::cin >> choice;) || (choice < 1) || (choice > 3) ){
-    cin.clear();
-    cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
-    std::cout << "please enter a valid choice\n "
-    "1: temp = T0*pow(0.95,k)\n "
-    "2: temp = T0/k\n"
-    "3: temp = T0/log(k)\n";
-  }
+  int coolScheme = 0;
+  cooling_choice(&coolScheme);
 
-  cout << "Iteration\tFitness Value\tBest Value" << '\n';
-
-  Eigen::VectorXd curr,best,next;
+  // initialise search space //
+  Eigen::VectorXd curr,next,best;
   curr = VectorXd::Random(dim)*1000; // random points b/w (-1000,1000)
   best = curr;
 
   double fit_curr,fit_next,fit_best;
   fit_curr = fit(curr);
   fit_best = fit_curr;
+
+  cout << "Iteration\tFitness Value\tBest Value" << '\n';
 
   temp = T0;
   int iter = 0;
@@ -70,7 +60,7 @@ int simAnnealing(int testfcn, int dim, double (*fit)(int, const VectorXd&) ){
       fit_next=fit(next);
       residual = fit_curr - fit_next;
 
-      std::bernoulii_dustribution Pb(PAccept(temp,fit_curr,fit_next));
+      std::bernoulli_distribution Pb(PAccept(temp,fit_curr,fit_next));
       if (fit_next<fit_curr) {    // good point
           curr = next;
           fit_curr = fit_next;
@@ -95,7 +85,7 @@ int simAnnealing(int testfcn, int dim, double (*fit)(int, const VectorXd&) ){
       reset temperature
       }
       */
-      cooling(choice, k , temp);
+      cooling(coolScheme, k , temp);
 
       if ((iter%REPORT_INTERVAL)==0){
           cout << setw(9) <<iter<<"\t"<<setprecision(6)<<setw(13)<<fit_curr<<
@@ -109,6 +99,20 @@ int simAnnealing(int testfcn, int dim, double (*fit)(int, const VectorXd&) ){
 return 0;
 }
 
+void cooling_choice(int * choice){
+  cout << "select cooling scheme:\n"
+  "1: temp = T0*pow(0.95,k)\n "
+  "2: temp = T0/k\n"
+  "3: temp = T0/log(k)\n";
+  while( !(std::cin >> (*choice);) || ((*choice) < 1) || ((*choice) > 3) ){
+    cin.clear();
+    cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+    std::cout << "please enter a valid choice\n "
+    "1: temp = T0*pow(0.95,k)\n "
+    "2: temp = T0/k\n"
+    "3: temp = T0/log(k)\n";
+  }
+}
 
 // k annealing parameter // same as iteration until reannealing //
 // initial temperature set in simAnn.h //
@@ -128,6 +132,7 @@ bool cooling(const int choice, int k, double *temp){
 float PAccept(double temp, double fit_curr, fit_next){
 return exp((-1)*(fabs(fit_curr-fit_next))/temp);
 }
+
 
 //~~~~~~~~~~~Test Function Definitions~~~~~~~~~~~~~~~~~~~~//
 // 2D Rosenbrock Function

@@ -1,5 +1,4 @@
 #include "optimisation.h"
-#include<random>
 
 
 // set initial temperature //
@@ -8,3 +7,4 @@
 #define REPORT_INTERVAL 10
 
 bool cooling(int choice, double temp);
+void cooling_choice(int * choice);
