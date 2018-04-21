@@ -9,7 +9,7 @@
 
 #define DIM_MAX 20
 #define TOL 1e-16
-#define ITER_MAX 1000
+#define ITER_MAX 1e10
 
 using namespace Eigen;
 using namespace std;

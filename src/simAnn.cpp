@@ -37,9 +37,12 @@ int simAnnealing(int testfcn, int dim, double (*fit)(int, const VectorXd&) ){
   Eigen::VectorXd curr,next,best;
   curr = VectorXd::Random(dim)*1000; // random points b/w (-1000,1000)
   best = curr;
+  std::cout << best  << '\n';
 
   double fit_curr,fit_next,fit_best;
   fit_curr = fit(dim,curr);
+  std::cout << "/* message */" << '\n';
+
   fit_best = fit_curr;
 
   cout << "Iteration\tFitness Value\tBest Value" << '\n';
@@ -57,7 +60,7 @@ int simAnnealing(int testfcn, int dim, double (*fit)(int, const VectorXd&) ){
     // insert step ensure domain boundedness and correct //
     //
       next = curr + VectorXd::Random(dim)*MAX_STEP; // can implement differently
-      fit_next=fit(dim,next);
+      fit_next= fit(dim,next);
       residual = fit_curr - fit_next;
 
       std::bernoulli_distribution Pb(PAccept(temp,fit_curr,fit_next));
@@ -139,8 +142,7 @@ return exp((-1)*(fabs(fit_curr-fit_next))/temp);
 // global minima f(x,y) = 0 at (x,y) = (a,a*a)
 double  rosenbrock_2d(int dim, const VectorXd& X){
   assert(dim==2);
-  std::cout << X << '\n';
-  double r2d =  1.;
+  double r2d =  pow(1 - X(0),2) + 100*pow(X(1) - X(0),2);
 return r2d;
 }
 
@@ -148,7 +150,8 @@ return r2d;
 // global minima f(x1,.....,xN) = 0 at (x1,.....,xN) = (1,.....,1)
 double rosenbrock_Nd(int dim ,const VectorXd& X){
   double rNd =0.;
-  std::cout << X << '\n';
+  for (int i=0; i<dim-1;i++)
+      rNd = rNd + ( 100*(pow(X(i+1) - pow(X(i),2),2)) + pow(1-X(i),2) );
 return rNd;
 }
 

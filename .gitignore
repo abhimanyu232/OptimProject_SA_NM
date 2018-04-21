@@ -3,3 +3,5 @@ intermediate/
 test/
 #ignore executable
 *out
+#core dump
+core

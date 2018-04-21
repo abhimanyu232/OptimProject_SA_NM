@@ -25,10 +25,10 @@ int main(){
       double (*foo)(int , const MatrixXd& ) = NULL;
       testfcn = testFCN_choice(foo);
       std::cout << "this is nelderMead" << '\n';
-      //nelderMead(testfcn,dim,foo);
+      nelderMead(testfcn,dim,foo);
   }
   else if (opt_choice == 2){ //  simAnn with Vector input
-      double (*foo)(int , const VectorXd& )=NULL;
+      double (*foo)(int , const VectorXd& ) = NULL;
       testfcn=testFCN_choice(foo);
       std::cout << "this is simAnn" << '\n';
       simAnnealing(testfcn,dim,foo);
@@ -104,6 +104,7 @@ switch (choice) {
 
   case 2:
     fitness = rosenbrock_Nd;
+    std::cout << "rosenbrock_Nd chosen" << '\n';
     return 2;
     break;
 
