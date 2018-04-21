@@ -50,7 +50,7 @@ return 0;
 
 
 
-int testFCN_choice(double (*fitness)(int, const MatrixXd&)){
+int testFCN_choice(fitMXd& fitness){
 cout << "Please choose the test function ; Enter 1 , 2 , 3 OR 4\n "
 "\tCase 1: Rosenbrock 2D \n\tCase 2:Rosenbrock Multidimensional \n\t"
 "Case 3: Sphere Multidimensional \n\tCase 4: Eggholder 2D" << endl;
@@ -85,7 +85,7 @@ switch (choice) {
 return 0;
 }
 
-int testFCN_choice(double (*fitness)(int, const VectorXd&)){
+int testFCN_choice(fitVXd& fitness){
 cout << "Please choose the test function ; Enter 1 , 2 , 3 OR 4\n "
 "\tCase 1: Rosenbrock 2D \n\tCase 2:Rosenbrock Multidimensional \n\t"
 "Case 3: Sphere Multidimensional \n\tCase 4: Eggholder 2D" << endl;
