@@ -19,8 +19,8 @@ using namespace std;
 // one each for Nelder Mead and Simulated Annealing
 // necessary definitions in respective .cpp files.
 // driver.cpp MUST BE COMPILED with either nelder_mead.cpp or simAnn.cpp
-void testFCN_choice(double (*fitness)(int, const VectorXd&));
-void testFCN_choice(double (*fitness)(int, const MatrixXd&));
+int testFCN_choice(double (*fitness)(int, const VectorXd&));
+int testFCN_choice(double (*fitness)(int, const MatrixXd&));
 
 double rosenbrock_2d(int dim, const VectorXd& X); // for simAnn
 double rosenbrock_2d(int dim, const MatrixXd& X); // for nelderMead

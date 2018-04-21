@@ -39,7 +39,7 @@ int simAnnealing(int testfcn, int dim, double (*fit)(int, const VectorXd&) ){
   best = curr;
 
   double fit_curr,fit_next,fit_best;
-  fit_curr = fit(curr);
+  fit_curr = fit(dim,curr);
   fit_best = fit_curr;
 
   cout << "Iteration\tFitness Value\tBest Value" << '\n';
@@ -57,7 +57,7 @@ int simAnnealing(int testfcn, int dim, double (*fit)(int, const VectorXd&) ){
     // insert step ensure domain boundedness and correct //
     //
       next = curr + VectorXd::Random(dim)*MAX_STEP; // can implement differently
-      fit_next=fit(next);
+      fit_next=fit(dim,next);
       residual = fit_curr - fit_next;
 
       std::bernoulli_distribution Pb(PAccept(temp,fit_curr,fit_next));
@@ -85,7 +85,7 @@ int simAnnealing(int testfcn, int dim, double (*fit)(int, const VectorXd&) ){
       reset temperature
       }
       */
-      cooling(coolScheme, k , temp);
+      cooling(coolScheme, k , &temp);
 
       if ((iter%REPORT_INTERVAL)==0){
           cout << setw(9) <<iter<<"\t"<<setprecision(6)<<setw(13)<<fit_curr<<
@@ -104,7 +104,7 @@ void cooling_choice(int * choice){
   "1: temp = T0*pow(0.95,k)\n "
   "2: temp = T0/k\n"
   "3: temp = T0/log(k)\n";
-  while( !(std::cin >> (*choice);) || ((*choice) < 1) || ((*choice) > 3) ){
+  while( !(std::cin >> (*choice)) || ((*choice) < 1) || ((*choice) > 3) ){
     cin.clear();
     cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
     std::cout << "please enter a valid choice\n "
@@ -129,7 +129,7 @@ bool cooling(const int choice, int k, double *temp){
 }
 
 // prob of accepting bad value //
-float PAccept(double temp, double fit_curr, fit_next){
+float PAccept(double temp, double fit_curr, double fit_next){
 return exp((-1)*(fabs(fit_curr-fit_next))/temp);
 }
 

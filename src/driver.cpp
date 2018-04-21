@@ -22,13 +22,13 @@ int main(){
   srand((unsigned int) time(0));
 
   if (opt_choice == 1){ // Nelder Mead with Matrix input
-      double (*foo)(int , const MatrixXd& );
-      testfcn =testFCN_choice(foo);
+      double (*foo)(int , const MatrixXd& ) = NULL;
+      testfcn = testFCN_choice(foo);
       std::cout << "this is nelderMead" << '\n';
       //nelderMead(testfcn,dim,foo);
   }
   else if (opt_choice == 2){ //  simAnn with Vector input
-      double (*foo)(int , const VectorXd& );
+      double (*foo)(int , const VectorXd& )=NULL;
       testfcn=testFCN_choice(foo);
       std::cout << "this is simAnn" << '\n';
       simAnnealing(testfcn,dim,foo);
@@ -85,7 +85,7 @@ switch (choice) {
 return 0;
 }
 
-void testFCN_choice(double (*fitness)(int, const VectorXd&)){
+int testFCN_choice(double (*fitness)(int, const VectorXd&)){
 cout << "Please choose the test function ; Enter 1 , 2 , 3 OR 4\n "
 "\tCase 1: Rosenbrock 2D \n\tCase 2:Rosenbrock Multidimensional \n\t"
 "Case 3: Sphere Multidimensional \n\tCase 4: Eggholder 2D" << endl;
@@ -99,18 +99,23 @@ while (!(cin>>choice) || choice > 4 || choice < 1){
 switch (choice) {
   case 1:
     fitness = rosenbrock_2d;
+    return 1;
     break;
 
   case 2:
     fitness = rosenbrock_Nd;
+    return 2;
     break;
 
   case 3:
     fitness = sphere_Nd;
+    return 3;
     break;
 
   case 4:
     fitness = egghol;
+    return 4;
     break;
 }
+return 0;
 }
