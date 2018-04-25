@@ -3,6 +3,8 @@
 
 
 int nelderMead(int testfcn, int dim, fitMXd fit){
+  MatrixXd points(dim+1,dim);
+  fit(dim,points);
 // use fit as a black box fitness function.
 // where it points to is decided by user // switch statement from driver.cpp
 // it takes arguement of types int, MatrixXd. SEE Function Definitions below.
@@ -16,6 +18,7 @@ int nelderMead(int testfcn, int dim, fitMXd fit){
 // it could be implemented as MatrixXd points(dim+1,dim)
 // each row stores 1 point coordinates in dim dimensional space
 // but feel free to use another method if you like
+
 
 return 0;
 }

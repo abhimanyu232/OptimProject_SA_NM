@@ -21,9 +21,10 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
   fit_curr = fit(dim,curr);
   fit_best = fit_curr;
   //std::cout << "/* test message */" << '\n';
-  cout << "Iteration\tFitness Value\tBest Value" << '\n';
+  cout << "Iteration\tFitness Value\tBest Value\tTemperature" << endl;
 
   int k=0;        // annealing parameter
+  int reAnnCnt = 0;
   int iter=0;
   int acnt=0;     // counts number of accepted values of next
   double residual=1.;
@@ -53,9 +54,17 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
             if (Pb(gen)) {
               curr = next;
               fit_curr=fit_next;
+              acnt++;
             }
       }
 
+      if ( (acnt == 80/(reAnnCnt+1)) || (iter%200000 == 0) ){
+        reAnnCnt++;
+        k = 1;
+        temp = T0*0.95;
+        acnt = 0;
+        curr = best;
+      }
       /* ??? REANNEAL ???
       whole loop surrounding calculations
       for (accept_count=0;accept_count<100;){
@@ -67,13 +76,13 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
       cooling(coolScheme, k , &temp);
 
       if ((iter%REPORT_INTERVAL)==0){
-          cout << setw(9) <<iter<<"\t"<<setprecision(6)<<setw(13)<<fit_curr<<
-          "\t"<<setprecision(6)<<setw(10)<<fit_best<<'\n';
+          cout << setw(9) <<iter<<"\t"<<setprecision(10)<<setw(13)<<fit_curr<<
+          "\t"<<setprecision(6)<<setw(10)<<fit_best<<'\t'<<setw(10)<<
+          temp<<'\t'<<acnt<<'\t'<<reAnnCnt<<endl;
       }
 
   }
-  while ( iter <= ITER_MAX || residual >= TOL  );
-
+  while ( iter <= ITER_MAX  );
 
 return 0;
 }
@@ -99,9 +108,9 @@ bool cooling(const int choice, int k, double *temp){
   switch (choice) {
   case 1: *temp = T0*pow(0.95,k); return 1;
 
-  case 2: *temp = T0/k; return 1;
+  case 2: *temp = T0/k; return 1;       //fast annealing
 
-  case 3: *temp = T0/log(k); return 1;
+  case 3: *temp = T0/log(k); return 1; //boltzman annealing
 
   default: cout << "invalid cooling choice" << '\n'; return 0;
 }
@@ -109,7 +118,8 @@ bool cooling(const int choice, int k, double *temp){
 
 // prob of accepting bad value //
 float PAccept(double temp, double fit_curr, double fit_next){
-return exp((-1)*(fabs(fit_curr-fit_next))/temp);
+//return exp( (-1)*(fabs(fit_curr-fit_next))/(K_BOLTZ*temp) );
+return 1/(1+exp((fit_next-fit_curr)/temp));
 }
 
 //~~~~~~~~~~~Test Function Definitions~~~~~~~~~~~~~~~~~~~~//
