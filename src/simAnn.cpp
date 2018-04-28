@@ -13,7 +13,7 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
 
   // initialise search space //
   Eigen::VectorXd curr,next,best;
-  curr = VectorXd::Random(dim)*1000; // random points b/w (-1000,1000)
+  curr = VectorXd::Random(dim)*SEARCH_DOMAIN; // random points b/w (-1000,1000)
   best = curr;
   //std::cout << best  << '\n';
 
@@ -30,13 +30,16 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
   double residual=1.;
   double temp=T0;
   do {
-    iter++;
-    k++;
+
     //k=iter-(reanneal_step*100); // changes after reannealing //
     // if acnt%100 : k = reset  : temp = reset
     // insert step ensure domain boundedness and correct //
     //
-      next = curr + VectorXd::Random(dim)*MAX_STEP; // can implement differently
+    do {
+      iter++;
+      k++;
+      next = curr + (VectorXd::Random(dim)*temp).
+      cwiseProduct((round(ArrayXd::Random(dim))).matrix());
       fit_next= fit(dim,next);
       residual = fit_curr - fit_next;
 
@@ -57,14 +60,21 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
               acnt++;
             }
       }
+      cooling(coolScheme, k , &temp);
 
-      if ( (acnt == 80/(reAnnCnt+1)) || (iter%200000 == 0) ){
-        reAnnCnt++;
-        k = 1;
-        temp = T0*0.95;
-        acnt = 0;
-        curr = best;
+      if ((iter%REPORT_INTERVAL)==0){
+          cout << setw(9) <<iter<<"\t"<<setprecision(10)<<setw(13)<<fit_curr<<
+          "\t"<<setprecision(6)<<setw(10)<<fit_best<<'\t'<<setw(10)<<
+          temp<<'\t'<<acnt<<'\t'<<reAnnCnt<<endl;
       }
+    } while( acnt <=100 );
+
+      k = 1;
+      temp = T0*0.95;
+      acnt = 0;
+      curr = best;
+      fit_curr = fit_best;
+
       /* ??? REANNEAL ???
       whole loop surrounding calculations
       for (accept_count=0;accept_count<100;){
@@ -73,7 +83,6 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
       reset temperature
       }
       */
-      cooling(coolScheme, k , &temp);
 
       if ((iter%REPORT_INTERVAL)==0){
           cout << setw(9) <<iter<<"\t"<<setprecision(10)<<setw(13)<<fit_curr<<
