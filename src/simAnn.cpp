@@ -13,7 +13,11 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
 
   // initialise search space //
   Eigen::VectorXd curr,next,best;
-  curr = VectorXd::Random(dim)*SEARCH_DOMAIN; // random points b/w (-1000,1000)
+  if (testfcn == 4)
+    curr = VectorXd::Random(2)*512;
+  else
+    curr = VectorXd::Random(dim)*SEARCH_DOMAIN; // random start
+
   best = curr;
   //std::cout << best  << '\n';
 
@@ -30,16 +34,26 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
   double residual=1.;
   double temp=T0;
   do {
-
-    //k=iter-(reanneal_step*100); // changes after reannealing //
-    // if acnt%100 : k = reset  : temp = reset
-    // insert step ensure domain boundedness and correct //
-    //
     do {
       iter++;
       k++;
       next = curr + (VectorXd::Random(dim)*temp).
       cwiseProduct((round(ArrayXd::Random(dim))).matrix());
+
+      if (testfcn == 4){
+          if (next(0)>=-512.0){
+              if (next(1)<=512.0) {
+                continue;
+              }
+          }
+          else {
+              if (next(0)<=-512)
+                  next(0) = -512 + fabs(next(0)+512);
+
+              if (next(1)>=512)
+                  next(1) = 512 - fabs(next(0)-512);
+              }
+      }
       fit_next= fit(dim,next);
       residual = fit_curr - fit_next;
 
@@ -68,21 +82,13 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
           temp<<'\t'<<acnt<<'\t'<<reAnnCnt<<endl;
       }
     } while( acnt <=100 );
-
+      reAnnCnt++;
       k = 1;
       temp = T0*0.95;
       acnt = 0;
       curr = best;
       fit_curr = fit_best;
 
-      /* ??? REANNEAL ???
-      whole loop surrounding calculations
-      for (accept_count=0;accept_count<100;){
-      increment accept_count only if accept i.e in first part of if loop above.
-      reset k 1
-      reset temperature
-      }
-      */
 
       if ((iter%REPORT_INTERVAL)==0){
           cout << setw(9) <<iter<<"\t"<<setprecision(10)<<setw(13)<<fit_curr<<
@@ -115,7 +121,7 @@ void cooling_choice(int * choice){
 // initial temperature set in simAnn.h //
 bool cooling(const int choice, int k, double *temp){
   switch (choice) {
-  case 1: *temp = T0*pow(0.95,k); return 1;
+  case 1: *temp = T0*pow(0.95,k); return 1;  // BEST
 
   case 2: *temp = T0/k; return 1;       //fast annealing
 
@@ -162,7 +168,9 @@ return sph;
 //  global minima at f(x,y) = -959.6407 at (x,y) = (512,404.2319)
 double egghol(int dim, const VectorXd& X){
   assert(dim == 2);
-  assert((X(0)>=-512) && (X(1)<=512));
+  assert(fabs(X(0))<=512);
+  assert(fabs(X(1))<=512);
+  std::cout << "chosen vector" << X << '\n';
   double eggh = -1*(X(1)+47)*sin(sqrt(fabs(X(0)+(X(1)+47))))
                       - X(0)*sin(sqrt(fabs(X(0)-(X(1)+47))));
 return eggh;
