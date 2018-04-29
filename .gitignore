@@ -1,7 +1,8 @@
 #ignore all object files
 intermediate/
 test/
-#ignore executable
+#ignore executables/plots etc
 *out
+*asv 
 #core dump
 core
