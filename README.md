@@ -34,5 +34,6 @@ type **Make all** from terminal to compile.
 
 type **Make clean** to clear compiled intermediate and executable files. 
 
+type **./optimize.out** in terminal to run the executable/
 
  
