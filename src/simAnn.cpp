@@ -40,20 +40,31 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
       next = curr + (VectorXd::Random(dim)*temp).
       cwiseProduct((round(ArrayXd::Random(dim))).matrix());
 
+      // bound check for eggholder function
       if (testfcn == 4){
-          if (next(0)>=-512.0){
-              if (next(1)<=512.0) {
+          if (fabs(next(0))<=512.0 || fabs(next(1))<=512.0){
                 continue;
-              }
           }
           else {
-              if (next(0)<=-512)
-                  next(0) = -512 + fabs(next(0)+512);
-
-              if (next(1)>=512)
-                  next(1) = 512 - fabs(next(0)-512);
+              if (fabs(next(0))>512){
+                  if (next(0)<0) {
+                      next(0) = -512 + fabs(next(0)+512);
+                  }
+                  else if (next(0)>=0) {
+                      next(0) =  512 - fabs(next(0)-512);
+                  }
               }
+              if (fabs(next(1))>512){
+                  if (next(1)<0) {
+                      next(1) = -512 + fabs(next(1)+512);  /* code */
+                  }
+                  if (next(1)>=0) {
+                      next(1) = 512 - fabs(next(1)-512);
+                  }
+              }
+          }
       }
+
       fit_next= fit(dim,next);
       residual = fit_curr - fit_next;
 
@@ -171,12 +182,18 @@ double egghol(int dim, const VectorXd& X){
   assert(fabs(X(0))<=512);
   assert(fabs(X(1))<=512);
   std::cout << "chosen vector" << X << '\n';
-  double eggh = -1*(X(1)+47)*sin(sqrt(fabs(X(0)+(X(1)+47))))
+  double eggh = -1*(X(1)+47)*sin(sqrt(fabs((X(0)*0.5)+(X(1)+47))))
                       - X(0)*sin(sqrt(fabs(X(0)-(X(1)+47))));
 return eggh;
 }
 
-// Schaffer Function : has a plateau
+double schaf(int dim,const VectorXd& X){
+  assert(dim==2);
+  double sch = 0.5 + (sin(fabs((X(0)*X(0))-(X(1)*X(1)))) -0.5)/
+                            ( 1+0.001*((X(0)*X(0)) - (X(1)*X(1))) );
+return sch;
+}
+
 // Cross in Tray or Himmebau : multiple global minimas
 // dejong5 fcn
 

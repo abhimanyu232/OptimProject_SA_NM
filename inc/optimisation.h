@@ -38,3 +38,6 @@ double sphere_Nd(int dim,const MatrixXd& X ); // for nelderMead
 
 double egghol(int dim, const VectorXd& X); // for simAnn
 double egghol(int dim, const MatrixXd& X); // for nelderMead
+
+double schaf(int dim, const VectorXd& X);
+//double schaf(int dim, const MatrixXd& X);

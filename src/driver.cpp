@@ -52,10 +52,11 @@ return 0;
 
 int testFCN_choice(fitMXd& fitness){
 cout << "Please choose the test function ; Enter 1 , 2 , 3 OR 4\n "
-"\tCase 1: Rosenbrock 2D \n\tCase 2:Rosenbrock Multidimensional \n\t"
-"Case 3: Sphere Multidimensional \n\tCase 4: Eggholder 2D" << endl;
+"Case 1: Rosenbrock 2D \n\tCase 2:Rosenbrock Multidimensional \n\t"
+"Case 3: Sphere Multidimensional \n\tCase 4: Eggholder 2D\n\t"
+"Case 5: Schaffer 2D"<< endl;
 int choice;
-while (!(cin>>choice) || choice > 4 || choice < 1){
+while (!(cin>>choice) || choice > 5 || choice < 1){
   cin.clear();
   cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
   cout<<"please enter integers 1 2 3 or 4 only"<<endl;
@@ -81,6 +82,12 @@ switch (choice) {
     fitness = egghol;
     return 4;
     break;
+/*
+    case 5:
+      fitness = schaf;
+      return 5;
+      break;
+*/
 }
 return 0;
 }
@@ -88,9 +95,10 @@ return 0;
 int testFCN_choice(fitVXd& fitness){
 cout << "Please choose the test function ; Enter 1 , 2 , 3 OR 4\n "
 "\tCase 1: Rosenbrock 2D \n\tCase 2:Rosenbrock Multidimensional \n\t"
-"Case 3: Sphere Multidimensional \n\tCase 4: Eggholder 2D" << endl;
+"Case 3: Sphere Multidimensional \n\tCase 4: Eggholder 2D\n\t"
+"Case 5: Schaffer 2D"<< endl;
 int choice;
-while (!(cin>>choice) || choice > 4 || choice < 1){
+while (!(cin>>choice) || choice > 5 || choice < 1){
   cin.clear();
   cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
   cout<<"please enter integers 1 2 3 or 4 only"<<endl;
@@ -117,6 +125,11 @@ switch (choice) {
     fitness = egghol;
     return 4;
     break;
+
+    case 5:
+      fitness = schaf;
+      return 5;
+      break;
 }
 return 0;
 }
