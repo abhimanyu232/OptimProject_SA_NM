@@ -25,7 +25,8 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
   fit_curr = fit(dim,curr);
   fit_best = fit_curr;
   //std::cout << "/* test message */" << '\n';
-  cout << "Iteration\tFitness Value\tBest Value\tTemperature" << endl;
+  cout << "Iteration\tFitness Value\tBest Value\tTemperature\t"
+  "Accept Count\tRe-Anneal Count" << endl;
 
   int k=0;        // annealing parameter
   int reAnnCnt = 0;
@@ -66,7 +67,7 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
       }
 
       fit_next= fit(dim,next);
-      residual = fit_curr - fit_next;
+      residual = fabs(fit_curr - fit_next);
 
       std::bernoulli_distribution Pb(PAccept(temp,fit_curr,fit_next));
       if (fit_next<fit_curr) {    // good point
@@ -87,6 +88,11 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
       }
       cooling(coolScheme, k , &temp);
 
+      if (iter%1000000==0) {
+        cout << "Iteration\tFitness Value\tBest Value\tTemperature\t"
+        "N.Accept \tN.Re-Anneal" << endl;
+      }
+
       if ((iter%REPORT_INTERVAL)==0){
           cout << setw(9) <<iter<<"\t"<<setprecision(10)<<setw(13)<<fit_curr<<
           "\t"<<setprecision(6)<<setw(10)<<fit_best<<'\t'<<setw(10)<<
@@ -100,16 +106,16 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
       curr = best;
       fit_curr = fit_best;
 
-
+/*
       if ((iter%REPORT_INTERVAL)==0){
           cout << setw(9) <<iter<<"\t"<<setprecision(10)<<setw(13)<<fit_curr<<
           "\t"<<setprecision(6)<<setw(10)<<fit_best<<'\t'<<setw(10)<<
           temp<<'\t'<<acnt<<'\t'<<reAnnCnt<<endl;
       }
-
+*/
   }
-  while ( iter <= ITER_MAX  );
-
+  while ( iter <= ITER_MAX );
+//std::cout << "residual" << residual<< '\n';
 return 0;
 }
 
@@ -117,14 +123,14 @@ void cooling_choice(int * choice){
   cout << "select cooling scheme:\n"
   "1: temp = T0*pow(0.95,k)\n "
   "2: temp = T0/k\n"
-  "3: temp = T0/log(k)\n";
+  "3: temp = T0/log(k) **RECOMMENDED** \n";
   while( !(std::cin >> (*choice)) || ((*choice) < 1) || ((*choice) > 3) ){
     cin.clear();
     cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
     std::cout << "please enter a valid choice\n "
     "1: temp = T0*pow(0.95,k)\n "
     "2: temp = T0/k\n"
-    "3: temp = T0/log(k)\n";
+    "3: temp = T0/log(k) **RECOMMENDED**\n ";
   }
 }
 
@@ -189,8 +195,8 @@ return eggh;
 
 double schaf(int dim,const VectorXd& X){
   assert(dim==2);
-  double sch = 0.5 + (sin(fabs((X(0)*X(0))-(X(1)*X(1)))) -0.5)/
-                            ( 1+0.001*((X(0)*X(0)) - (X(1)*X(1))) );
+  double sch = 0.5 + (pow(cos(pow(sin(fabs(X(0)*X(0)-X(1)*X(1))),2)),2) -0.5)/
+    pow( (1+0.001*((X(0)*X(0)) + (X(1)*X(1)))), 2 );
 return sch;
 }
 
