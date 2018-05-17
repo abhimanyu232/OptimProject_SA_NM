@@ -1,6 +1,6 @@
 EXE=optimize.out
 CXX = g++
-CXXFLAGS = --std=c++11 -O3 -Iinc -Wall -Wall
+CXXFLAGS = --std=c++11 -O3 -Iinc -Wall -Werror
 LDLIBS += -lm
 
 SRC_DIR=src
@@ -21,6 +21,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 clean:
 		$(RM) $(OBJ)
 		rm -f $(EXE)
+		rm -f $(dat)
 
 #clean_all:
 #		$(RM) $(OBJ)

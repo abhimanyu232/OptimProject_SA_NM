@@ -3,6 +3,13 @@
 
 
 int simAnnealing(int testfcn, int dim, fitVXd fit){
+
+  ofstream result_file("Sim_Ann.dat", ios::app);
+  if ( result_file.is_open() ){
+    result_file << "Iteration \t Fitness Value " << endl ;
+    result_file.close();
+  } else {printf("ERROR OPENING DAT FILE\n");}
+
   // random number seeding //
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -32,7 +39,7 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
   int reAnnCnt = 0;
   int iter=0;
   int acnt=0;     // counts number of accepted values of next
-  double residual=1.;
+  //double residual=1.;
   double temp=T0;
   do {
     do {
@@ -67,7 +74,7 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
       }
 
       fit_next= fit(dim,next);
-      residual = fabs(fit_curr - fit_next);
+      //residual = fabs(fit_curr - fit_next);
 
       std::bernoulli_distribution Pb(PAccept(temp,fit_curr,fit_next));
       if (fit_next<fit_curr) {    // good point
@@ -87,6 +94,14 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
             }
       }
       cooling(coolScheme, k , &temp);
+      if ((iter%100)==0){
+          result_file.open("Sim_Ann.dat", ios::app);
+          if (result_file){
+            result_file << setw(9) <<iter<<"\t"<<
+            setprecision(10)<<setw(13)<<fit_curr<< endl ;
+            result_file.close();
+          } else {cout<< "Error writing data to file" << endl;}
+      }
 
       if (iter%1000000==0) {
         cout << "Iteration\tFitness Value\tBest Value\tTemperature\t"
@@ -98,6 +113,14 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
           "\t"<<setprecision(6)<<setw(10)<<fit_best<<'\t'<<setw(10)<<
           temp<<'\t'<<acnt<<'\t'<<reAnnCnt<<endl;
       }
+
+      if ((iter%REPORT_INTERVAL)==0){
+          cout << setw(9) <<iter<<"\t"<<setprecision(10)<<setw(13)<<fit_curr<<
+          "\t"<<setprecision(6)<<setw(10)<<fit_best<<'\t'<<setw(10)<<
+          temp<<'\t'<<acnt<<'\t'<<reAnnCnt<<endl;
+      }
+
+
     } while( acnt <=100 );
       reAnnCnt++;
       k = 1;
@@ -202,25 +225,3 @@ return sch;
 
 // Cross in Tray or Himmebau : multiple global minimas
 // dejong5 fcn
-
-
-// simulated annealing //
-/*
-VectorXd = Matrix<double, dim, 1>
-RowVectorXd = Matrix<double,1,dim>
-RowVectorXd curr, new, best_pt
-
-1.  Temperature = 100 ; curr = random() ; best_pt = curr;
-do {
-2. new = curr  + delta //
-3. if fit(new) <fit(curr)
-        curr  = new
-        if fit(new) < fit(best)
-        best = curr
-else if fit(new) > fit(curr) && p(k,Temp) > rand()
-           curr =  new
-          }
-4. Temp = Temp*whatever [cooling scheme]
-  }
-5. // REANNEALING??
-*/
