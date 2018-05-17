@@ -2,7 +2,10 @@
 intermediate/
 test/
 #ignore executables/plots etc
+*dat
+*jpg
+*jpeg
 *out
-*asv 
+*asv
 #core dump
 core
