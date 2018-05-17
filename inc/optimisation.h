@@ -7,6 +7,14 @@
 #include<time.h>
 #include<assert.h>
 
+// mkdir headers //
+#include <string.h>
+#include <limits.h>     // PATH_MAX
+#include <sys/stat.h>   // nmkdir(2)
+#include <errno.h>
+// //
+
+
 #define DIM_MAX 20
 #define TOL 1e-16
 #define ITER_MAX 1e9
@@ -41,3 +49,5 @@ double egghol(int dim, const MatrixXd& X); // for nelderMead
 
 double schaf(int dim, const VectorXd& X);
 //double schaf(int dim, const MatrixXd& X);
+
+int mkdir_p(const char *path);

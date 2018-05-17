@@ -2,7 +2,8 @@
 
 
 int main(){
-
+  char path1[] = "results";
+  mkdir_p(path1);
   // enter problem dimension //
   int dim;
   cout << "enter search space dimension ( 2<= Dim <="<<DIM_MAX<<")"<<endl;

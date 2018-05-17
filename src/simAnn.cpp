@@ -4,7 +4,7 @@
 
 int simAnnealing(int testfcn, int dim, fitVXd fit){
 
-  ofstream result_file("Sim_Ann.dat", ios::app);
+  ofstream result_file("results/Sim_Ann.dat", ios::app);
   if ( result_file.is_open() ){
     result_file << "Iteration \t Fitness Value " << endl ;
     result_file.close();
@@ -41,6 +41,12 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
   int acnt=0;     // counts number of accepted values of next
   //double residual=1.;
   double temp=T0;
+
+  result_file.open("results/Sim_Ann.dat", ios::app);
+  if (!result_file.is_open()){
+    std::cout << "unable to write data to file" << '\n';
+    return 0;
+  }
   do {
     do {
       iter++;
@@ -95,12 +101,8 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
       }
       cooling(coolScheme, k , &temp);
       if ((iter%100)==0){
-          result_file.open("Sim_Ann.dat", ios::app);
-          if (result_file){
             result_file << setw(9) <<iter<<"\t"<<
             setprecision(10)<<setw(13)<<fit_curr<< endl ;
-            result_file.close();
-          } else {cout<< "Error writing data to file" << endl;}
       }
 
       if (iter%1000000==0) {
@@ -138,22 +140,23 @@ int simAnnealing(int testfcn, int dim, fitVXd fit){
 */
   }
   while ( iter <= ITER_MAX );
+  result_file.close();
 //std::cout << "residual" << residual<< '\n';
 return 0;
 }
 
 void cooling_choice(int * choice){
   cout << "select cooling scheme:\n"
-  "1: temp = T0*pow(0.95,k)\n "
-  "2: temp = T0/k\n"
-  "3: temp = T0/log(k) **RECOMMENDED** \n";
+  "1: temp = T0*pow(0.95,k) **SUPER RECOMMENDED** \n "
+  "2: temp = T0/k\n *Quite Trash*"
+  "3: temp = T0/log(k) **SLOW RECOMMENDED** \n";
   while( !(std::cin >> (*choice)) || ((*choice) < 1) || ((*choice) > 3) ){
     cin.clear();
     cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
     std::cout << "please enter a valid choice\n "
-    "1: temp = T0*pow(0.95,k)\n "
-    "2: temp = T0/k\n"
-    "3: temp = T0/log(k) **RECOMMENDED**\n ";
+    "1: temp = T0*pow(0.95,k) **SUPER RECOMMENDED** \n "
+    "2: temp = T0/k\n *Quite Trash*"
+    "3: temp = T0/log(k) **SLOW RECOMMENDED** \n";
   }
 }
 
