@@ -1,9 +1,24 @@
 #include"optimisation.h"
+#include <stdlib.h>     /* strtod */
 
+double ITER_MAX = 1e9;           // default
+double REPORT_INTERVAL = 100000; // default
 
-int main(){
+int main(int argc, char *argv[]){
+
+  if (argc == 1){
+    std::cout << "default ITER_MAX:"<< ITER_MAX << '\n';;
+  }
+  else if (argc >= 2){
+    ITER_MAX = strtod(argv[1],NULL);
+    REPORT_INTERVAL = strtod(argv[2],NULL);
+    std::cout << "ITER_MAX: " << ITER_MAX << '\n';
+  }
+
+  // create directory for results
   char path1[] = "results";
   mkdir_p(path1);
+
   // enter problem dimension //
   int dim;
   cout << "enter search space dimension ( 2<= Dim <="<<DIM_MAX<<")"<<endl;
