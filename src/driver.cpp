@@ -14,6 +14,10 @@ int main(int argc, char *argv[]){
     REPORT_INTERVAL = strtod(argv[2],NULL);
     std::cout << "ITER_MAX: " << ITER_MAX << '\n';
   }
+  //
+  //add method to choose dimension, optimisation method,
+  //and fitness function from command line
+  //
 
   // create directory for results
   char path1[] = "results";

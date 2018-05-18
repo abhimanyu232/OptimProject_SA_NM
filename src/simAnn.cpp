@@ -113,7 +113,7 @@ int simAnnealing(const int& testfcn,const int& dim, fitVXd fit){
       }
 
       // PRINT SCREEN
-      if (fmod(iter,1000000)==0) {
+      if ( fmod(iter,(REPORT_INTERVAL*10000)) ==0 ) {
         cout << "Iteration\tFitness Value\t  Best Value\tTemperature\t"
         "N.Accept \tN.Re-Anneal" << endl;
       }

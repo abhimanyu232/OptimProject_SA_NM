@@ -3,8 +3,7 @@
 
 
 int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
-  MatrixXd points(dim+1,dim);
-  fit(dim,points);
+  
 // use fit as a black box fitness function.
 // where it points to is decided by user // switch statement from driver.cpp
 // it takes arguement of types int, MatrixXd. SEE Function Definitions below.
