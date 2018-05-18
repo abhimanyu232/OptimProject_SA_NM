@@ -1,11 +1,12 @@
-#include "optimisation.h"
-#include "simAnn.h"
+#include"optimisation.h"
+#include"simAnn.h"
 #include"get_time.h"
+
 
 extern double ITER_MAX;
 extern double REPORT_INTERVAL;
-int simAnnealing(const int& testfcn,const int& dim, fitVXd fit){
 
+int simAnnealing(const int& testfcn,const int& dim, fitVXd fit){
   // CHOICE OF COOLING SCHEME //
   int coolScheme = 0;
   cooling_choice(&coolScheme);  // sets variable coolScheme
@@ -17,6 +18,7 @@ int simAnnealing(const int& testfcn,const int& dim, fitVXd fit){
   } else {printf("ERROR OPENING DAT FILE\n");}
 
   int64 time_begin,time_end;
+  // BEGIN TIME //
   time_begin=GetTimeMs64();
 
   // random number seeding //
@@ -141,7 +143,10 @@ int simAnnealing(const int& testfcn,const int& dim, fitVXd fit){
 */
   }
   while ( iter <= ITER_MAX );
+
+  // END TIME
   time_end=GetTimeMs64();
+
   std::cout <<'\n' << "BEST POINT:"<< '\n';
   std::cout << best << '\n';
   std::cout << "Time Elapsed: " << time_end - time_begin << "ms" << '\n';
