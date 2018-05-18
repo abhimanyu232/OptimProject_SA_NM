@@ -34,17 +34,17 @@ int main(int argc, char *argv[]){
       "1: Nelder Mead \n2: Simulated Annealing" << endl;
   }
 
-  int testfcn;
   srand((unsigned int) time(0));
 
+  int testfcn;
+  fitVXd foo = NULL;        // function pointer for fitness function
+
   if (opt_choice == 1){ // Nelder Mead with Matrix input
-      fitMXd foo = NULL;        // funcion pointer for fitness function
       testfcn = testFCN_choice(foo);
       std::cout << "this is nelderMead" << '\n';
       nelderMead(testfcn,dim,foo);
   }
   else if (opt_choice == 2){ //  simAnn with Vector input
-      fitVXd foo = NULL;        // function pointer for fitness function
       testfcn=testFCN_choice(foo);
       std::cout << "this is simAnn" << '\n';
       simAnnealing(testfcn,dim,foo);
@@ -60,92 +60,5 @@ int main(int argc, char *argv[]){
   //double fit = foo(dim,X);
   //cout << "fitness = " << fit << endl;
 */
-return 0;
-}
-
-
-
-
-int testFCN_choice(fitMXd& fitness){
-cout << "Please choose the test function ; Enter 1 , 2 , 3 OR 4\n "
-"Case 1: Rosenbrock 2D \n\tCase 2:Rosenbrock Multidimensional \n\t"
-"Case 3: Sphere Multidimensional \n\tCase 4: Eggholder 2D\n\t"
-"Case 5: Schaffer 2D"<< endl;
-int choice;
-while (!(cin>>choice) || choice > 5 || choice < 1){
-  cin.clear();
-  cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
-  cout<<"please enter integers 1 2 3 or 4 only"<<endl;
-  cin >> choice;
-}
-switch (choice) {
-  case 1:
-    fitness = rosenbrock_2d;
-    return 1;
-    break;
-
-  case 2:
-    fitness = rosenbrock_Nd;
-    return 2;
-    break;
-
-  case 3:
-    fitness = sphere_Nd;
-    return 3;
-    break;
-
-  case 4:
-    fitness = egghol;
-    return 4;
-    break;
-/*
-    case 5:
-      fitness = schaf;
-      return 5;
-      break;
-*/
-}
-return 0;
-}
-
-int testFCN_choice(fitVXd& fitness){
-cout << "Please choose the test function ; Enter 1 , 2 , 3 OR 4\n "
-"\tCase 1: Rosenbrock 2D \n\tCase 2:Rosenbrock Multidimensional \n\t"
-"Case 3: Sphere Multidimensional \n\tCase 4: Eggholder 2D\n\t"
-"Case 5: Schaffer 2D"<< endl;
-int choice;
-while (!(cin>>choice) || choice > 5 || choice < 1){
-  cin.clear();
-  cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
-  cout<<"please enter integers 1 2 3 or 4 only"<<endl;
-  cin >> choice;
-}
-switch (choice) {
-  case 1:
-    fitness = rosenbrock_2d;
-    return 1;
-    break;
-
-  case 2:
-    fitness = rosenbrock_Nd;
-    std::cout << "rosenbrock_Nd chosen" << '\n';
-    return 2;
-    break;
-
-  case 3:
-    fitness = sphere_Nd;
-    return 3;
-    break;
-
-  case 4:
-    fitness = egghol;
-    return 4;
-    break;
-
-    case 5:
-      fitness = schaf;
-      return 5;
-      break;
-}
 return 0;
 }
