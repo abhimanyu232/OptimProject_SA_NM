@@ -47,49 +47,31 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 		iter++;
 
 //calculate the value at the new point
-		if (shrink == 0 && iter>1){
-			simplex_point = (simplex.row(dim)).transpose();
-		 	fitness (dim) = fit(dim,simplex_point);
-		}
-
+		if (iter>1){
+			if (shrink == 0){
+					simplex_point = (simplex.row(dim)).transpose();
+		 			fitness (dim) = fit(dim,simplex_point);
+			}
 //shrinked -> calculate new values for every point but the former best
-		else if (iter>1){		//
-			for (int i=1; i<=dim; i++){
-				simplex_point = (simplex.row(i)).transpose();
-				fitness(i) = fit(dim,simplex_point);
+			else if (shrink==1){
+				for (int i=1; i<=dim; i++){
+					simplex_point = (simplex.row(i)).transpose();
+					fitness(i) = fit(dim,simplex_point);
+				}
 			}
 		}
-
 //reset shrink check
 		shrink=0;
 
 // sort simplex points in ascending order of fitness //
 // potentially better implementation //
-// row vector to store simplex row
-		Eigen::RowVectorXd temp_simplex;
-		double temp_fitness;
-		for(int i=0;i<dim;i++){
-			 for(int j=0;j<dim-i;j++){
-				 	if(fitness(j)>fitness(j+1)){
-						 temp_simplex=simplex.row(j);
-						 simplex.row(j)=simplex.row(j+1);
-						 simplex.row(j+1)=temp_simplex;
-						 temp_fitness=fitness(j);
-						 fitness(j)=fitness(j+1);
-						 fitness(j+1)=temp_fitness;
-				  }
-		   }
-		 }
+		 sort_simplex(dim, fitness, simplex);
 
 		 Eigen::VectorXd m(dim), r(dim), c(dim), cc(dim), s(dim);
 		 double fitness_cc,fitness_ext,fitness_refl,fitness_contr;
-// CALCULATE BARYCENTER //
-	   MatrixXd simplex_formean(dim,dim);
-		 for (int j=0; j<dim; j++)
-		 			simplex_formean.row(j)=simplex.row(j);
 
-		 for (int j=0; j<dim; j++)
-			 		m(j)=(simplex_formean.col(j)).mean();
+// CALCULATE BARYCENTER //
+		 find_barycentre(dim,m,simplex);
 
 // REFLECTED POINT //
 		 r = 2*m - (simplex.row(dim)).transpose();
@@ -125,12 +107,7 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 						  }
 // SHRINK IF CONTRACTION FAILS //
 				 		  else {
-							 		for (int i=1; i<dim+1; i++){
-				 					 		simplex.row(i) = simplex.row(0) +
-				 													    (simplex.row(i)- simplex.row(0))/2;
-			   							shrink=1;
-//				 					 		std::cout << "IF 8" << '\n';
-				 					}
+										shrink_simplex(dim,shrink,simplex);
 							}
 				 }
 // REFLECTION WORST POINT YET : CONTRACT INSIDE
@@ -143,12 +120,7 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 							}
 // SHRINK IF CONTRACTION FAILS //
 							else {
-									for (int i=1; i<dim+1; i++){
-											 simplex.row(i) = simplex.row(0) +
-																		   (simplex.row(i)- simplex.row(0))/2;
-											 shrink=1;
-//								     	 std::cout << "SHRINK" << '\n';
-									}
+										shrink_simplex(dim,shrink,simplex);
 							}
 				 }
 		 }
@@ -177,3 +149,46 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 
 return 0;
 }
+
+// SORT SIMPLEX POINTS IN ASC ORDER OF FITNESS : simplex(dim) is worst point
+	void sort_simplex(const int& dim, VectorXd& fitness, MatrixXd& simplex){
+		double temp_fitness;
+		RowVectorXd temp_simplex;
+		for(int i=0;i<dim;i++){
+			 for(int j=0;j<dim-i;j++){
+					if(fitness(j)>fitness(j+1)){
+						 temp_simplex=simplex.row(j);
+						 simplex.row(j)=simplex.row(j+1);
+						 simplex.row(j+1)=temp_simplex;
+						 temp_fitness=fitness(j);
+						 fitness(j)=fitness(j+1);
+						 fitness(j+1)=temp_fitness;
+					}
+			 }
+	 }
+ return;
+ }
+//
+
+//
+ void shrink_simplex(const int& dim,int& shrink, MatrixXd& simplex){
+	 for (int i=1; i<dim+1; i++){
+				simplex.row(i) = simplex.row(0) +
+												(simplex.row(i)- simplex.row(0))/2;
+				shrink=1;
+	 }
+ return;
+ }
+//
+
+//
+ void find_barycentre(const int& dim, VectorXd& mean, MatrixXd simplex){
+	 MatrixXd simplex_formean(dim,dim);
+	 for (int j=0; j<dim; j++)
+				simplex_formean.row(j)=simplex.row(j);
+
+	 for (int j=0; j<dim; j++)
+				mean(j)=(simplex_formean.col(j)).mean();
+ return;
+ }
+//
