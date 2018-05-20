@@ -2,7 +2,6 @@
 #include"simAnn.h"
 #include"get_time.h"
 
-
 extern double ITER_MAX;
 extern double REPORT_INTERVAL;
 
@@ -11,11 +10,11 @@ int simAnnealing(const int& testfcn,const int& dim, fitVXd fit){
   int coolScheme = 0;
   cooling_choice(&coolScheme);  // sets variable coolScheme
 
-  ofstream result_file("results/Sim_Ann.dat", ios::app);
+  ofstream result_file("results/Sim_Ann.dat");
   if ( result_file.is_open() ){
     result_file << "Iteration \t Fitness Value " << endl ;
     result_file.close();
-  } else {printf("ERROR OPENING DAT FILE\n");}
+  } else {cerr<<"ERROR OPENING DAT FILE\n";}
 
   int64 time_begin,time_end;
   // BEGIN TIME //
@@ -51,7 +50,7 @@ int simAnnealing(const int& testfcn,const int& dim, fitVXd fit){
 
   result_file.open("results/Sim_Ann.dat", ios::app);
   if (!result_file.is_open()){
-    std::cout << "unable to write data to file" << '\n';
+    cerr << "unable to write data to file" << '\n';
     return 0;
   }
   do {
@@ -110,8 +109,10 @@ int simAnnealing(const int& testfcn,const int& dim, fitVXd fit){
 
       // WRITE TO FILE
       if ((fmod(iter,REPORT_INTERVAL))==0){
+        if (result_file){
             result_file << setw(9) <<iter<<"\t"<<
             setprecision(10)<<setw(13)<<fit_curr<< endl ;
+        } else {cerr << "ERROR WRITING DATA TO FILE";}
       }
 
       // PRINT SCREEN
@@ -127,20 +128,13 @@ int simAnnealing(const int& testfcn,const int& dim, fitVXd fit){
 
 
     } while( acnt <=100 );
-      reAnnCnt++;
-      k = 1;
-      temp = T0*0.95;
-      acnt = 0;
-      curr = best;
-      fit_curr = fit_best;
-
-/*
-      if ((iter%REPORT_INTERVAL)==0){
-          cout << setw(9) <<iter<<"\t"<<setprecision(10)<<setw(13)<<fit_curr<<
-          "\t"<<setprecision(6)<<setw(10)<<fit_best<<'\t'<<setw(10)<<
-          temp<<'\t'<<acnt<<'\t'<<reAnnCnt<<endl;
-      }
-*/
+    // REANNEAL AND RESET PARAMETERS //
+    reAnnCnt++;
+    k = 1;
+    temp = T0*0.95;
+    acnt = 0;
+    curr = best;
+    fit_curr = fit_best;
   }
   while ( iter <= ITER_MAX );
 
