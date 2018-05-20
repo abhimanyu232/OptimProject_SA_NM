@@ -38,18 +38,8 @@ std::cout << "fitness init: \n" << fitness << '\n';
 		if (shrink == 0 && iter>1){
 			simplex_point = (simplex.row(dim)).transpose();
 		 	fitness (dim) = fit(dim,simplex_point);
+			std::cout << "IF ONE" << '\n';
 		}
-
-		// something like this to find the worst point
-		// for (int i=0;i<=dim;i++){
-		// 	worst_fit = fitness(i)
-	  // 	if (fitness(i)<worst_fit){
-		// 		worst_fit = fitness(i)
-		//  	worst_point  = i ;
-		//  	}
-		// simplex_point = simplex.row(WORST_POINT)
-		// }
-		//}
 
 //shrinked -> calculate new values for every point but the former best
 		else if (iter>1){		//
@@ -57,6 +47,7 @@ std::cout << "fitness init: \n" << fitness << '\n';
 				simplex_point = (simplex.row(i)).transpose();
 				fitness(i) = fit(dim,simplex_point);
 			}
+			std::cout << "IF TWO" << '\n';
 		}
 
 //reset shrink check
@@ -76,6 +67,7 @@ std::cout << "fitness init: \n" << fitness << '\n';
 					 temp_fitness=fitness(j);
 					 fitness(j)=fitness(j+1);
 					 fitness(j+1)=temp_fitness;
+					 std::cout << "IF THREE" << '\n';
 				 }
 			 }
 		 }
@@ -94,8 +86,9 @@ std::cout << "fitness init: \n" << fitness << '\n';
 //create reflect point
 		 r = 2*m - (simplex.row(dim)).transpose();
 		 fitness_refl = fit(dim,r);
-		 if ( fitness(dim-1)>fitness_refl && fitness_refl>=fitness(0) ){
-		 		simplex.row(dim) = r.transpose(); // reflect
+		 if ( fitness_refl<fitness(dim-1) && fitness_refl>=fitness(0) ){
+		 		simplex.row(dim) = r.transpose(); // reflect and end iteration //
+				std::cout << "REFLECTED" << '\n';
 		 }
 //create extend point
 		 else if (fitness_refl<fitness(0)){
@@ -103,9 +96,11 @@ std::cout << "fitness init: \n" << fitness << '\n';
 				 fitness_ext = fit(dim,s);
 				 if (fitness_ext<fitness_refl){
 					 simplex.row(dim) = s.transpose(); //extend
+					 std::cout << "EXTEND" << '\n';
 				 }
 				 else {
 					 simplex.row(dim) = r.transpose(); //reflect
+					 	std::cout << "REFLECTED" << '\n';
 				 }
 		 }
 
@@ -125,6 +120,7 @@ std::cout << "fitness init: \n" << fitness << '\n';
 						  }
 					 }
 			   }
+				 std::cout << "IF 6" << '\n';
 			}
 
 //create contract inside point
@@ -133,6 +129,7 @@ std::cout << "fitness init: \n" << fitness << '\n';
 				 fitness_cc = fit(dim,cc);
 				 if ( fitness_cc<fitness(dim) ){
 					  simplex.row(dim) = cc.transpose();
+						std::cout << "IF 7" << '\n';
 				 }
 //shrink
 				 else	{
@@ -140,6 +137,7 @@ std::cout << "fitness init: \n" << fitness << '\n';
 							 simplex.row(i) = simplex.row(0) +
 							 								 (simplex.row(i)- simplex.row(0))/2;
 							 shrink=1;
+							 std::cout << "IF 8" << '\n';
 						}
 				 }
 			}
