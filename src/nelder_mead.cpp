@@ -33,11 +33,13 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 
 	do {
 		iter++;
-		// take the worst point //
+
+//calculate the value at the new point
 		if (shrink == 0 && iter>1){
 			simplex_point = (simplex.row(dim)).transpose();
 		 	fitness (dim) = fit(dim,simplex_point);
 		}
+
 		// something like this to find the worst point
 		// for (int i=0;i<=dim;i++){
 		// 	worst_fit = fitness(i)
@@ -48,16 +50,21 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 		// simplex_point = simplex.row(WORST_POINT)
 		// }
 		//}
+
+//shrinked -> calculate new values for every point but the former best
 		else if (iter>1){		//
 			for (int i=1; i<=dim; i++){
 				simplex_point = (simplex.row(i)).transpose();
 				fitness(i) = fit(dim,simplex_point);
 			}
 		}
+
+//reset shrink check
 		shrink=0;
+
+// sort simplex points in ascending order of fitness //
 		double temp_fitness;
 		Eigen::VectorXd temp_simplex;
-		// sort simplex points in ascending order of fitness //
 		// potentially better implementation //
 		for(int i=0;i<=dim;i++){
 			 for(int j=0;j<dim-1-i;j++){
@@ -74,25 +81,34 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 
 		 Eigen::VectorXd m(dim), r(dim), c(dim), cc(dim), s(dim);
 		 double fitness_cc,fitness_ext,fitness_refl,fitness_contr;
-		 // barycentre coordinates //
-		 for (int j=0; j<dim; j++){
-		 		m(j)=(simplex.col(j)).mean();
-		 }
-		 r = 2*m - (simplex.row(dim)).transpose(); // reflect
+// barycentre coordinates //
+	 	for (int j=0; j<dim; j++){
+		 simplex_formean.row(j)=simplex.row(j);
+	 	}
+		for (int j=0; j<dim; j++){
+		 		m(j)=(simplex_formean.col(j)).mean();
+		}
+
+//create reflect point
+		 r = 2*m - (simplex.row(dim)).transpose();
 		 fitness_refl = fit(dim,r);
 		 if ( fitness(dim-1)>fitness_refl && fitness_refl>=fitness(0) ){
-		 		simplex.row(dim) = r.transpose();
+		 		simplex.row(dim) = r.transpose(); // reflect
 		 }
+
+//create extend point
 		 else if (fitness_refl<fitness(0)){
-				 s=m + 2*( m- (simplex.row(dim)).transpose() ); //extend
+				 s=m + 2*( m- (simplex.row(dim)).transpose() );
 				 fitness_ext = fit(dim,s);
 				 if (fitness_ext<fitness_refl){
-					 simplex.row(dim) = s.transpose();
+					 simplex.row(dim) = s.transpose(); //extend
 				 }
 				 else {
-					 simplex.row(dim) = r.transpose();
+					 simplex.row(dim) = r.transpose(); //reflect
 				 }
 		 }
+
+//create contract outside point
 		 else if ( fitness_refl >= fitness(dim-1) ){
 		 		 if ( fitness_refl < fitness(dim) ){ // betweeen the two worst points
 					 c = m + (r-m)/2;  //contract outside
@@ -100,6 +116,7 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 					 if (fitness_contr < fitness_refl){
 						  simplex.row(dim) = c.transpose();
 					 }
+//shrink
 					 else {
 					    for (int i=1; i<dim+1; i++){
 							 	 simplex.row(i) = simplex.row(0) +
@@ -109,12 +126,15 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 					 }
 			   }
 			}
-			else {                                 // worse than worst current
+
+//create contract inside point
+			else {                            // worse or equal to worst current
 				 cc = m + ((simplex.row(dim)).transpose() - m)/2; // contract inside
 				 fitness_cc = fit(dim,cc);
 				 if ( fitness_cc<fitness(dim) ){
 					  simplex.row(dim) = cc.transpose();
 				 }
+//shrink
 				 else	{
 					  for (int i=1; i<dim+1; i++){
 							 simplex.row(i) = simplex.row(0) +
