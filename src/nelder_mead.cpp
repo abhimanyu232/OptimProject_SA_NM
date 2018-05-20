@@ -14,23 +14,23 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 	std::cout << "dim ="<<dim << '\n';
 
 	int64 time_begin,time_end;
-	// BEGIN TIME //
+// BEGIN TIME //
 	time_begin = GetTimeMs64();
 
 	int shrink=0,iter=0;
 	Eigen::MatrixXd simplex; // dim+1,dim //
-	simplex = MatrixXd::Random(dim+1,dim)*1000;
+	simplex = MatrixXd::Random(dim+1,dim)*100;
 	std::cout << "starting simplex: "<< '\n' <<simplex << '\n';
 
 	Eigen::VectorXd fitness(dim+1);
 	Eigen::VectorXd simplex_point(dim);
 
-	// calculate fitness of each point
+// calculate fitness of each point
 	for (int i=0; i<=dim; i++){
 		simplex_point = (simplex.row(i)).transpose();
 		fitness(i) = fit(dim,simplex_point);
 	}
-
+std::cout << "fitness init: \n" << fitness << '\n';
 	do {
 		iter++;
 
@@ -63,11 +63,12 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 		shrink=0;
 
 // sort simplex points in ascending order of fitness //
+// potentially better implementation //
+// row vector to store simplex row
+		Eigen::RowVectorXd temp_simplex;
 		double temp_fitness;
-		Eigen::VectorXd temp_simplex;
-		// potentially better implementation //
-		for(int i=0;i<=dim;i++){
-			 for(int j=0;j<dim-1-i;j++){
+		for(int i=0;i<dim;i++){
+			 for(int j=0;j<dim-i;j++){
 				 if(fitness(j)>fitness(j+1)){
 					 temp_simplex=simplex.row(j);
 					 simplex.row(j)=simplex.row(j+1);
@@ -82,6 +83,7 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 		 Eigen::VectorXd m(dim), r(dim), c(dim), cc(dim), s(dim);
 		 double fitness_cc,fitness_ext,fitness_refl,fitness_contr;
 // barycentre coordinates //
+		MatrixXd simplex_formean(dim,dim);
 	 	for (int j=0; j<dim; j++){
 		 simplex_formean.row(j)=simplex.row(j);
 	 	}
@@ -95,10 +97,9 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 		 if ( fitness(dim-1)>fitness_refl && fitness_refl>=fitness(0) ){
 		 		simplex.row(dim) = r.transpose(); // reflect
 		 }
-
 //create extend point
 		 else if (fitness_refl<fitness(0)){
-				 s=m + 2*( m- (simplex.row(dim)).transpose() );
+				 s = m + 2*( m - (simplex.row(dim)).transpose() );
 				 fitness_ext = fit(dim,s);
 				 if (fitness_ext<fitness_refl){
 					 simplex.row(dim) = s.transpose(); //extend
@@ -111,13 +112,12 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 //create contract outside point
 		 else if ( fitness_refl >= fitness(dim-1) ){
 		 		 if ( fitness_refl < fitness(dim) ){ // betweeen the two worst points
-					 c = m + (r-m)/2;  //contract outside
+			 	 	 c = m + (r-m)/2;  	   						 //contract outside
 					 fitness_contr = fit(dim,c);
 					 if (fitness_contr < fitness_refl){
 						  simplex.row(dim) = c.transpose();
 					 }
-//shrink
-					 else {
+					 else { 														//shrink
 					    for (int i=1; i<dim+1; i++){
 							 	 simplex.row(i) = simplex.row(0) +
 							 									 (simplex.row(i)- simplex.row(0))/2;
@@ -128,8 +128,8 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 			}
 
 //create contract inside point
-			else {                            // worse or equal to worst current
-				 cc = m + ((simplex.row(dim)).transpose() - m)/2; // contract inside
+			else {                            		// worse or equal to worst current
+				 cc = m + ((simplex.row(dim)).transpose() - m)/2;
 				 fitness_cc = fit(dim,cc);
 				 if ( fitness_cc<fitness(dim) ){
 					  simplex.row(dim) = cc.transpose();
@@ -144,8 +144,10 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 				 }
 			}
 	// print to screen and file
-	std::cout << "iter: "<< iter << '\t' << "best fitness:" << fitness(0) << '\n';
-	//
+	if (fmod(iter,REPORT_INTERVAL)==0){
+	std::cout << "iter: "<< iter << "\t\t" << "best_fitness:" << fitness(0) << '\n';
+	std::cout << "simplex " << iter << ":\n" << simplex << '\n';
+	}//
 	}	while (iter <= ITER_MAX);
 
 	time_end = GetTimeMs64();
