@@ -46,7 +46,7 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 	do {
 		iter++;
 
-//calculate the value at the new point
+//calculate the value at the new point and replace the previous worst
 		if (iter>1){
 			if (shrink == 0){
 					simplex_point = (simplex.row(dim)).transpose();
@@ -67,14 +67,20 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 // potentially better implementation //
 		 sort_simplex(dim, fitness, simplex);
 
-		 Eigen::VectorXd m(dim), r(dim), c(dim), cc(dim), s(dim);
+		 Eigen::VectorXd m(dim), r(dim), c(dim), cc(dim), s(dim), worst(dim);
 		 double fitness_cc,fitness_ext,fitness_refl,fitness_contr;
+		 worst = (simplex.row(dim)).transpose();
 
 // CALCULATE BARYCENTER //
 		 find_barycentre(dim,m,simplex);
 
+		 double alpha = 1;										// standard value
+		 double gamma = 2;										// standard value
+		 double beta = 0.5;										// standard value
+		 double rho = 0.5;										// standard value
+		 //assert(gamma >1 && beta < 1 && rho < 1);
 // REFLECTED POINT //
-		 r = 2*m - (simplex.row(dim)).transpose();
+		 r = (1+alpha)*m - alpha*worst;
 		 fitness_refl = fit(dim,r);
 // ACCEPT REFLECTION //
 		 if ( fitness_refl<fitness(dim-1) && fitness_refl>=fitness(0) ){
@@ -82,7 +88,8 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 		 }
 // CONSIDER EXTENSION //
 		 else if (fitness_refl<fitness(0)){
-				 s = m + 2*( m - (simplex.row(dim)).transpose() );
+		 	   s = m + gamma*(r - m);
+				 //s = m + 2*( m - worst );
 				 fitness_ext = fit(dim,s);
 // ACCEPT EXTENSION //
 				 if (fitness_ext<fitness_refl){
@@ -99,7 +106,7 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 		 else if ( fitness_refl >= fitness(dim-1) ){
 // REFLECTION BETWEEN WORST TWO POINTS : CONTRACT OUTSIDE
 		 		 if ( fitness_refl < fitness(dim) ){
-				 	 	 	c = m + (r-m)/2;
+				 	 	 	c = m + beta*(r-m);
 						 	fitness_contr = fit(dim,c);
 						 	if (fitness_contr < fitness_refl){
 							  	simplex.row(dim) = c.transpose();
@@ -107,12 +114,12 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 						  }
 // SHRINK IF CONTRACTION FAILS //
 				 		  else {
-										shrink_simplex(dim,shrink,simplex);
+										shrink_simplex(dim,rho,shrink,simplex);
 							}
 				 }
 // REFLECTION WORST POINT YET : CONTRACT INSIDE
 			 	 else if ( fitness_refl >= fitness(dim) ){ // WORST CASE
-			 				cc = m + ((simplex.row(dim)).transpose() - m)/2;
+			 				cc = m - beta*( m - worst);
 							fitness_cc = fit(dim,cc);
 							if ( fitness_cc<fitness(dim) ){ // ACCEPT CONTRACT INSIDE
 									 simplex.row(dim) = cc.transpose();
@@ -120,7 +127,7 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 							}
 // SHRINK IF CONTRACTION FAILS //
 							else {
-										shrink_simplex(dim,shrink,simplex);
+										shrink_simplex(dim,rho,shrink,simplex);
 							}
 				 }
 		 }
@@ -171,10 +178,10 @@ return 0;
 //
 
 //
- void shrink_simplex(const int& dim,int& shrink, MatrixXd& simplex){
+ void shrink_simplex(const int& dim,const double& rho,int& shrink, MatrixXd& simplex){
 	 for (int i=1; i<dim+1; i++){
 				simplex.row(i) = simplex.row(0) +
-												(simplex.row(i)- simplex.row(0))/2;
+												rho*(simplex.row(i)- simplex.row(0));
 				shrink=1;
 	 }
  return;
