@@ -106,6 +106,7 @@ int simAnnealing(const int& testfcn,const int& dim, fitVXd fit){
               acnt++;
             }
       }
+      // MOVE COOLING OUTSIDE // I.E RUN 100 ITER AT SAME TEMPERATURE
       cooling(coolScheme, k , &temp);
 
       // WRITE TO FILE
