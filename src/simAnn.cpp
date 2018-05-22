@@ -30,7 +30,7 @@ int simAnnealing(const int& testfcn,const int& dim, fitVXd fit){
     curr = VectorXd::Random(2)*512;
   else
     curr = VectorXd::Random(dim)*SEARCH_DOMAIN; // random start
-
+  // BETTER INITIAL POINT USING OTHER ALGORITHM : NM GRADIENT SEARCH ETC //
   best = curr;
   //std::cout << best  << '\n';
 
@@ -59,13 +59,14 @@ int simAnnealing(const int& testfcn,const int& dim, fitVXd fit){
       k++;
       next = curr + (VectorXd::Random(dim)*temp).
       cwiseProduct((round(ArrayXd::Random(dim))).matrix());
+      //  BETTER RANDOM NUMBER GENERATOR //
 
       // bound check for eggholder function
       if (testfcn == 4){
           if (fabs(next(0))<=512.0 || fabs(next(1))<=512.0){
                 continue;
           }
-          else {
+          else {    // MAKE FUNCTION
               if (fabs(next(0))>512){
                   if (next(0)<0) {
                       next(0) = -512 + fabs(next(0)+512);
@@ -152,14 +153,14 @@ return 0;
 void cooling_choice(int * choice){
   cout << "select cooling scheme:\n"
   "1: temp = T0*pow(0.95,k) **SUPER RECOMMENDED** \n "
-  "2: temp = T0/k\n *Quite Trash*"
+  "2: temp = T0/k\n "
   "3: temp = T0/log(k) **SLOW RECOMMENDED** \n";
   while( !(std::cin >> (*choice)) || ((*choice) < 1) || ((*choice) > 3) ){
     cin.clear();
     cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
     std::cout << "please enter a valid choice\n "
     "1: temp = T0*pow(0.95,k) **SUPER RECOMMENDED** \n "
-    "2: temp = T0/k\n *Quite Trash*"
+    "2: temp = T0/k\n "
     "3: temp = T0/log(k) **SLOW RECOMMENDED** \n";
   }
 }
