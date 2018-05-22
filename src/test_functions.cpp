@@ -31,7 +31,8 @@ return sph;
 //  global minima at f(x,y) = -959.6407 at (x,y) = (512,404.2319)
 double egghol(const int& dim, const VectorXd& X){
   assert(dim == 2);
-  assert((X(0)>=-512) && (X(1)<=512));
+  std::cout << "X :" << X << '\n';
+  assert( fabs(X(0))<=512 && fabs(X(1))<=512 );
   double eggh = -1*(X(1)+47)*sin(sqrt(fabs(X(0)+(X(1)+47))))
                       - X(0)*sin(sqrt(fabs(X(0)-(X(1)+47))));
 return eggh;
@@ -86,4 +87,38 @@ switch (choice) {
     break;
 }
 return 0;
+}
+
+// ------------AUXILLARY FUNCTIONS-------------- //
+
+int domain_limit(const int& testfcn){
+  int boundary;
+  if (testfcn == 4)     // eggholder
+    boundary = 512;
+  else                  // usual
+    boundary = 1000;
+
+return boundary;
+}
+
+
+void enforce_boundary(const int& dim,const int& bounds, VectorXd& next){
+  for (int i = 0 ; i<dim ; i++){
+      if (fabs(next(i))<=bounds){
+  return;
+  }
+    else {
+          if (fabs(next(0))>bounds){
+            for (int i = 0 ; i<dim ; i++) {
+                if (next(i)<0) {
+                  next(i) = -1*bounds + fabs(next(i)+bounds);
+                }
+                else if (next(i)>=0) {
+                  next(i) =  bounds - fabs(next(i)-bounds);
+                }
+            }
+        }
+    }
+  }
+return;
 }

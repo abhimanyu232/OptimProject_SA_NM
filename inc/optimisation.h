@@ -18,28 +18,20 @@
 using namespace Eigen;
 using namespace std;
 
+// pointer to function that takes (const int&,const VectorXd&) arguements
+typedef double (*fitVXd)(const int&, const VectorXd&);
+
 int mkdir_p(const char *path);
 
-typedef double (*fitVXd)(const int&, const VectorXd&);
-//typedef double (*fitMXd)(int, const MatrixXd&);
-
-int simAnnealing(const int& testfcn,const int& dim, fitVXd foo);
-int nelderMead(const int& testfcn,const int& dim, fitVXd foo);
-
-int testFCN_choice(fitVXd& fcnPtr);
-//int testFCN_choice(fitMXd& fcnPtr);
+int simAnnealing(const int& testfcn,const int& bounds,const int& dim, fitVXd foo);
+int nelderMead(const int& testfcn,const int& bounds,const int& dim, fitVXd foo);
 
 double rosenbrock_2d(const int& dim, const VectorXd& X);
-//double rosenbrock_2d(int dim, const MatrixXd& X);
-
 double rosenbrock_Nd(const int& dim,const VectorXd& X);
-//double rosenbrock_Nd(int dim ,const MatrixXd& X);
-
 double sphere_Nd(const int& dim,const VectorXd& X );
-//double sphere_Nd(int dim,const MatrixXd& X );
-
 double egghol(const int& dim, const VectorXd& X);
-//double egghol(int dim, const MatrixXd& X);
-
 double schaf(const int& dim, const VectorXd& X);
-//double schaf(int dim, const MatrixXd& X);
+
+int testFCN_choice(fitVXd& fcnPtr);
+int domain_limit(const int& testfcn);
+void enforce_boundary(const int& dim,const int& bounds, VectorXd& next);
