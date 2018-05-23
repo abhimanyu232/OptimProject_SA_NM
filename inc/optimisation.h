@@ -12,7 +12,7 @@
 #include <limits.h>     // PATH_MAX
 #include <sys/stat.h>   // nmkdir(2)
 #include <errno.h>
-#define DIM_MAX 20
+#define DIM_MAX 50
 #define TOL 1e-16
 
 using namespace Eigen;
