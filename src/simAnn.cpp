@@ -138,7 +138,7 @@ int simAnnealing(const int& testfcn,const int& dim, fitVXd fit){
     curr = best;
     fit_curr = fit_best;
   }
-  while ( iter <= ITER_MAX );
+  while ( iter <= ITER_MAX && fit_best > 1e-3 );
 
   // END TIME
   time_end=GetTimeMs64();

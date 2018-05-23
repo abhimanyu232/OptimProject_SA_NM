@@ -146,7 +146,7 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 			 else cerr << "Error writing to file on iter:"<<iter<< '\n';
 		 }
 
-	}	while (iter <= ITER_MAX);
+	}	while (iter <= ITER_MAX && fitness(0) > 1e-3);
 
 	time_end = GetTimeMs64();
 	cout << "Time Elapsed: " << time_end - time_begin << "ms" << '\n';
