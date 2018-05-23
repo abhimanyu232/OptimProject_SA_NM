@@ -5,7 +5,7 @@
 extern double ITER_MAX;
 extern double REPORT_INTERVAL;
 
-int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
+int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit){
 	if (testfcn > 5) {
 		std::cout << "wrong test function. ERROR" << '\n';
 		return 0;
@@ -24,7 +24,7 @@ int nelderMead(const int& testfcn, const int& dim, fitVXd fit){
 
 	int shrink=0,iter=0;
 	Eigen::MatrixXd simplex; // dim+1,dim //
-	simplex = MatrixXd::Random(dim+1,dim)*1000;
+	simplex = MatrixXd::Random(dim+1,dim)*bounds;
 	std::cout << "starting simplex: "<< '\n' <<simplex << '\n';
 
 	Eigen::VectorXd fitness(dim+1);

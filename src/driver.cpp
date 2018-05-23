@@ -40,29 +40,20 @@ int main(int argc, char *argv[]){
 
   srand((unsigned int) time(0));
 
-  int testfcn;
   fitVXd foo = NULL;        // function pointer for fitness function
+  int testfcn = testFCN_choice(foo);      // choice of test function
+  int bounds = domain_limit(testfcn);     // set domain bounds
 
   if (opt_choice == 1){ // Nelder Mead with Matrix input
-      testfcn = testFCN_choice(foo);
-      std::cout << "this is nelderMead" << '\n';
-      nelderMead(testfcn,dim,foo);
+      std::cout << "you chose nelderMead" << '\n';
+      nelderMead(testfcn,bounds,dim,foo);
   }
   else if (opt_choice == 2){ //  simAnn with Vector input
-      testfcn=testFCN_choice(foo);
-      std::cout << "this is simAnn" << '\n';
-      simAnnealing(testfcn,dim,foo);
+      std::cout << "you chose simulated Annealing" << '\n';
+      simAnnealing(testfcn,bounds,dim,foo);
   }
   else
   {std::cerr << "ERROR: invalid optimisation algo choice" << '\n'; return 0;}
 
-
-/*
-  VectorXd X(dim);    // vector or matrix?
-  X = VectorXd::Random(dim);
-  cout <<"X: \n" << X << endl;
-  //double fit = foo(dim,X);
-  //cout << "fitness = " << fit << endl;
-*/
 return 0;
 }

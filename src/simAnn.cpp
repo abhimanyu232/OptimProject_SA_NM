@@ -5,7 +5,7 @@
 extern double ITER_MAX;
 extern double REPORT_INTERVAL;
 
-int simAnnealing(const int& testfcn,const int& dim, fitVXd fit){
+int simAnnealing(const int& testfcn,const int& bounds,const int& dim, fitVXd fit){
   // CHOICE OF COOLING SCHEME //
   int coolScheme = 0;
   cooling_choice(&coolScheme);  // sets variable coolScheme
@@ -26,10 +26,7 @@ int simAnnealing(const int& testfcn,const int& dim, fitVXd fit){
 
   // initialise search space //
   Eigen::VectorXd curr,next,best;
-  if (testfcn == 4)
-    curr = VectorXd::Random(2)*512;
-  else
-    curr = VectorXd::Random(dim)*SEARCH_DOMAIN; // random start
+  curr = VectorXd::Random(dim)*bounds; // random start
   // BETTER INITIAL POINT USING OTHER ALGORITHM : NM GRADIENT SEARCH ETC //
   best = curr;
   //std::cout << best  << '\n';
@@ -61,30 +58,8 @@ int simAnnealing(const int& testfcn,const int& dim, fitVXd fit){
       cwiseProduct((round(ArrayXd::Random(dim))).matrix());
       //  BETTER RANDOM NUMBER GENERATOR //
 
-      // bound check for eggholder function
-      if (testfcn == 4){
-          if (fabs(next(0))<=512.0 || fabs(next(1))<=512.0){
-                continue;
-          }
-          else {    // MAKE FUNCTION
-              if (fabs(next(0))>512){
-                  if (next(0)<0) {
-                      next(0) = -512 + fabs(next(0)+512);
-                  }
-                  else if (next(0)>=0) {
-                      next(0) =  512 - fabs(next(0)-512);
-                  }
-              }
-              if (fabs(next(1))>512){
-                  if (next(1)<0) {
-                      next(1) = -512 + fabs(next(1)+512);  /* code */
-                  }
-                  if (next(1)>=0) {
-                      next(1) = 512 - fabs(next(1)-512);
-                  }
-              }
-          }
-      }
+      // enforce domain and reflect of out of domain
+      enforce_boundary(dim,bounds,next);
 
       fit_next= fit(dim,next);
       //residual = fabs(fit_curr - fit_next);
