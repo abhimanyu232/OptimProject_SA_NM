@@ -3,8 +3,6 @@ intermediate/
 test/
 #ignore executables/plots etc
 *dat
-*jpg
-*jpeg
 *out
 *asv
 #core dump

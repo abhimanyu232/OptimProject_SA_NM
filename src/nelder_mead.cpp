@@ -153,7 +153,7 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 
 	cout <<'\n' << "BEST POINT:"<< '\n';
 	cout << simplex << '\n';
-
+	std::cout << "BEST FITNESS: "<< fitness(0) << '\n';
 return 0;
 }
 

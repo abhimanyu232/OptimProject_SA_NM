@@ -3,10 +3,12 @@
 //~~~~~~~~~~~Test Function Definitions~~~~~~~~~~~~~~~~~~~~//
 // 2D Rosenbrock Function
 // global minima f(x,y) = 0 at (x,y) = (a,a*a)
-double  rosenbrock_2d(const int& dim, const VectorXd& X){
-  assert(dim==2);
-  double r2d =  pow(1 - X(0),2) + 100*pow(X(1) - X(0),2);
-return r2d;
+double  rastrigin(const int& dim, const VectorXd& X){
+  double rstgnND = 10*dim ;
+  for (int i = 0; i<dim ; i++)
+      rstgnND = rstgnND + ( pow(X(i),2) - 10*cos(2*M_PI*X(i)) ) ;
+
+return rstgnND;
 }
 
 // Multidimensional Rosenbrock Function
@@ -49,7 +51,7 @@ return sch;
 
 int testFCN_choice(fitVXd& fitness){
 cout << "Please choose the test function ; Enter 1 , 2 , 3 OR 4\n "
-"\tCase 1: Rosenbrock 2D \n\tCase 2:Rosenbrock Multidimensional \n\t"
+"\tCase 1: Rastrigin Multidimensional \n\tCase 2:Rosenbrock Multidimensional \n\t"
 "Case 3: Sphere Multidimensional \n\tCase 4: Eggholder 2D\n\t"
 "Case 5: Schaffer 2D"<< endl;
 int choice;
@@ -61,7 +63,7 @@ while (!(cin>>choice) || choice > 5 || choice < 1){
 }
 switch (choice) {
   case 1:
-    fitness = rosenbrock_2d;
+    fitness = rastrigin;
     return 1;
     break;
 
@@ -93,10 +95,12 @@ return 0;
 
 int domain_limit(const int& testfcn){
   int boundary;
-  if (testfcn == 4)     // eggholder
+  if (testfcn == 4)         // eggholder
     boundary = 512;
-  else                  // usual
-    boundary = 1000;
+  else if (testfcn == 1)    // Rastrigin
+    boundary = 5.12;
+  else
+    boundary = 1000;        // Usual
 
 return boundary;
 }
