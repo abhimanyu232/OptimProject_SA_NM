@@ -22,8 +22,8 @@ sequential:
 
 parallelSA:
 		mkdir -p results
-		$(MPI) $(CXXFLAGS) $(LDLIBS) $(INC) $(UTILS) \
-												src/parallel/simAnn.cpp -o psa.out
+		$(MPI) $(CXXFLAGS) $(LDLIBS) $(INC) src/utils/get_time.cpp \
+					src/parallel/test_functions.cpp	src/parallel/simAnn.cpp -o psa.out
 
 parallelNM:
 		mkdir -p results

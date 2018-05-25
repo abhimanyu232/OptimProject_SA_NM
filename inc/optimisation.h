@@ -33,5 +33,6 @@ double egghol(const int& dim, const VectorXd& X);
 double schaf(const int& dim, const VectorXd& X);
 
 int testFCN_choice(fitVXd& fcnPtr);
+void P_testFCN_choice(const int& choice, fitVXd& fcnPtr);
 int domain_limit(const int& testfcn);
 void enforce_boundary(const int& dim,const int& bounds, VectorXd& next);

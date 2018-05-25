@@ -4,54 +4,45 @@
 #include<mpi.h>
 
 
-extern double ITER_MAX;
-extern double REPORT_INTERVAL;
+double ITER_MAX = 10000;
+double REPORT_INTERVAL = 50;
 
 int main (int argc, char* argv[]){
 
-  int opt_choice;
+    MPI_Init(&argc,&argv);
+    int size, id;
+    MPI_Comm_rank(MPI_COMM_WORLD, &id);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
   if (argc == 1){
+    if (!id)
     std::cout << "default ITER_MAX:"<< ITER_MAX << '\n';;
   }
-  else if (argc == 3){
+  else if (argc >= 3){
     ITER_MAX = strtod(argv[1],NULL);
     REPORT_INTERVAL = strtod(argv[2],NULL);
+    if (!id)
     std::cout << "ITER_MAX: " << ITER_MAX << "\tREPORT INTERVAL :" << REPORT_INTERVAL<< '\n';
   }
-  else if (argc >= 4){
-    opt_choice = atoi(argv[3]);
-  }
-  if (opt_choice != 1 && opt_choice != 2 ) {
-    cout << "Choose optimisation method \n"
-    "1: Nelder Mead  \n2: Simulated Annealing" << endl;
-    while (!(cin >> opt_choice) || (opt_choice !=1 && opt_choice != 2)){
-      cout << " Invalid Choice \n"
-      "1: Nelder Mead \n2: Simulated Annealing" << endl;
-    }
-  }
-
-  MPI_Init(&argc,&argv);
-  int size, id;
-  MPI_Comm_rank(MPI_COMM_WORLD, &id);
-  MPI_Comm_size(MPI_COMM_WORLD, &size);
 
 // TAKE COMMAND LINE ARGUEMENT TO REDUCE COMMUNICATION
-    int dim = 10;
-    /*
+    int dim;
     if (id == 0){
-      // enter problem dimension //
       cout << "enter search space dimension ( 2<= Dim <="<<DIM_MAX<<")"<<endl;
       while (!(cin >> dim) || dim < 2 || dim > DIM_MAX)
       cout<<" value out of range (2<=Dimension<="<< DIM_MAX << ")"<< '\n';
     }
-    MPI_Bcast(dim,1,MPI_INT,0,MPI_COMM_WORLD);
-    */
+    MPI_Bcast(&dim,1,MPI_INT,0,MPI_COMM_WORLD);
 
+
+    if (dim==0)
+    MPI_Finalize();
 
     srand((unsigned int) time(0));
     fitVXd fit = NULL;        // function pointer for fitness function
     // change function to take testfcn as arguement to remove the user input
-    int testfcn = testFCN_choice(fit);      // choice of test function
+    int testfcn = 2;
+    P_testFCN_choice(testfcn,fit);      // choice of test function
     int bounds = domain_limit(testfcn);     // set domain bounds
 
 // CHOICE OF COOLING SCHEME //
@@ -145,7 +136,11 @@ int main (int argc, char* argv[]){
             //MPI_Bcast(&global_fit,1,MPI_Double,0,MPI_COMM_WORLD);
 // BROADCAST BEST POINT FROM BEST PROC TO EVERYONE ELSE AND REPEAT
             proc_with_best_ = global_fit.rank;
-            MPI_Bcast(LOCAL_curr,dim,MPI_DOUBLE,proc_with_best_,MPI_COMM_WORLD);
+            MPI_Bcast(LOCAL_curr.data(),LOCAL_curr.size(),MPI_DOUBLE,proc_with_best_,MPI_COMM_WORLD);
+            if (id == 0){
+              if (fmod(iter,REPORT_INTERVAL)==0)
+              cout << "best fit "<< global_fit.next << endl;
+            }
           } while(GLOBAL_acnt <= 100 && global_fit.next > 0.1);
 
             // REANNEAL AND RESET PARAMETERS //
@@ -158,9 +153,14 @@ int main (int argc, char* argv[]){
 
       } while (iter < ITER_MAX && global_fit.next > 0.1 );
 // ----------------END PARALLEL----------------- //
-      MPI_Finalize();
 // END TIME
+      MPI_Barrier(MPI_COMM_WORLD);
       time_end=GetTimeMs64();
+      if (!id){
+        cout << "\nbest fit: "<< global_fit.next << endl;
+        std::cout << "Time Elapsed: " << time_end - time_begin << "ms" << '\n';
+      }
+      MPI_Finalize();
   return 0;
 }
 

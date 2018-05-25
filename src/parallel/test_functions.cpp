@@ -20,75 +20,20 @@ double rosenbrock_Nd(const int& dim,const VectorXd& X){
 return rNd;
 }
 
-// Multi Dimensional Sphere Function
-// global minima at f(x1,.....,xN) = 0 at (x1,......,xN) = (0,......,0)
-double sphere_Nd(const int& dim,const VectorXd& X ){
-  double sph = 0;
-  for (int i =0; i<dim ; i++)
-      sph = sph + pow(X(i),2);
-return sph;
-}
-
-//2D Eggholder Function
-//  global minima at f(x,y) = -959.6407 at (x,y) = (512,404.2319)
-double egghol(const int& dim, const VectorXd& X){
-  assert(dim == 2);
-  std::cout << "X :" << X << '\n';
-  assert( fabs(X(0))<=512 && fabs(X(1))<=512 );
-  double eggh = -1*(X(1)+47)*sin(sqrt(fabs(X(0)+(X(1)+47))))
-                      - X(0)*sin(sqrt(fabs(X(0)-(X(1)+47))));
-return eggh;
-}
-
-double schaf(const int& dim, const VectorXd& X){
-  assert(dim==2);
-  double sch = 0.5 + (pow(cos(pow(sin(fabs(X(0)*X(0)-X(1)*X(1))),2)),2) -0.5)/
-    pow( (1+0.001*((X(0)*X(0)) + (X(1)*X(1)))), 2 );
-return sch;
-}
-
 //~~~~~~~~~~~Test Function Choice~~~~~~~~~~~~~~~~~~~~//
 
-int testFCN_choice(fitVXd& fitness){
-cout << "Please choose the test function ; Enter 1 , 2 , 3 OR 4\n "
-"\tCase 1: Rastrigin Multidimensional \n\tCase 2:Rosenbrock Multidimensional \n\t"
-"Case 3: Sphere Multidimensional \n\tCase 4: Eggholder 2D\n\t"
-"Case 5: Schaffer 2D"<< endl;
-int choice;
-while (!(cin>>choice) || choice > 5 || choice < 1){
-  cin.clear();
-  cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
-  cout<<"please enter integers 1 2 3 or 4 only"<<endl;
-  cin >> choice;
-}
+void P_testFCN_choice(const int& choice,fitVXd& fitness){
 switch (choice) {
   case 1:
     fitness = rastrigin;
-    return 1;
+    std::cout << "rosenbrock_Nd chosen" << '\n';
     break;
 
   case 2:
     fitness = rosenbrock_Nd;
     std::cout << "rosenbrock_Nd chosen" << '\n';
-    return 2;
-    break;
-
-  case 3:
-    fitness = sphere_Nd;
-    return 3;
-    break;
-
-  case 4:
-    fitness = egghol;
-    return 4;
-    break;
-
-  case 5:
-    fitness = schaf;
-    return 5;
     break;
 }
-return 0;
 }
 
 // ------------AUXILLARY FUNCTIONS-------------- //
