@@ -1,29 +1,47 @@
-EXE=optimize.out
+default_target: sequential
+
 CXX = g++
-CXXFLAGS = --std=c++11 -O3 -Iinc -Wall -Werror
+MPI = mpicxx
+CXXFLAGS = --std=c++11 -O3  -Wall -Werror
+INC = -Iinc
 LDLIBS += -lm
 
-SRC_DIR=src
-SRC=$(wildcard $(SRC_DIR)/*.cpp)
-OBJ_DIR=intermediate
-OBJ=$(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+RM = rm -rf
 
-.PHONY: all clean
+UTIL_DIR=src/utils
+UTILS=$(wildcard $(UTIL_DIR)/*.cpp)
+SEQ_DIR=src/serial
+SEQ=$(wildcard $(SEQ_DIR)/*.cpp)
+PAR_DIR=src/parallel
+PAR=$(wildcard $(PAR_DIR)/*.cpp)
 
-all: $(EXE)
 
-$(EXE): $(OBJ)
-		$(CXX) $(LDFLAGS) $^ $(LDLIBS) -o $@
+sequential:
+		$(CXX) $(CXXFLAGS) $(LDLIBS) $(INC) $(UTILS) \
+												$(SEQ) -o optimize.out
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-		$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CFLAGS) -c $< -o $@
+parallelSA:
+		$(MPI) $(CXXFLAGS) $(LDLIBS) $(INC) $(UTILS) \
+												parallel/simAnn.cpp -o pSA.out
 
+parallelNM:
+		$(MPI) $(CXXFLAGS) $(LDLIBS) $(INC) $(UTILS) \
+		 										parallel/nelder_mead.cpp -o pNM.out
 clean:
-		$(RM) $(OBJ)
-		rm -f $(EXE)
-		rm -f $(dat)
-
+		rm *.out
+clean_seq:
+		rm optimize.out
+clean_psa:
+		rm pSA.out
+clean_pnm:
+		pNM.out
 clean_all:
-	$(RM) $(OBJ)
-	rm -f $(EXE)
-	rm -R results
+			rm optimize.out.
+			rm pSA.out
+			rm pSA.out
+			rm -R results
+
+all: sequential parallelSA parallelNM
+seq: sequential
+psa: parallelSA
+pnm: parallelNM
