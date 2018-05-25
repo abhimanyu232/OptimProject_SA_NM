@@ -32,7 +32,7 @@ Since I have skipped a lot of the getting started stuff. I used this to get star
 
 type **make** from terminal to compile sequential. 
 
-type **make psa ** from terminal to compile parallel simulated annealing. 
+type **make psa** from terminal to compile parallel simulated annealing. 
 
 type **./optimize.out** in terminal to run the sequential executable. 
 
