@@ -12,8 +12,8 @@ UTIL_DIR=src/utils
 UTILS=$(wildcard $(UTIL_DIR)/*.cpp)
 SEQ_DIR=src/serial
 SEQ=$(wildcard $(SEQ_DIR)/*.cpp)
-PAR_DIR=src/parallel
-PAR=$(wildcard $(PAR_DIR)/*.cpp)
+#PAR_DIR=src/parallel
+#PAR=$(wildcard $(PAR_DIR)/*.cpp)
 
 
 sequential:
@@ -22,11 +22,11 @@ sequential:
 
 parallelSA:
 		$(MPI) $(CXXFLAGS) $(LDLIBS) $(INC) $(UTILS) \
-												parallel/simAnn.cpp -o pSA.out
+					src/parallel/driver.cpp	src/parallel/simAnn.cpp -o pSA.out
 
 parallelNM:
 		$(MPI) $(CXXFLAGS) $(LDLIBS) $(INC) $(UTILS) \
-		 										parallel/nelder_mead.cpp -o pNM.out
+		 			src/parallel/driver.cpp	src/parallel/nelder_mead.cpp -o pNM.out
 clean:
 		rm *.out
 clean_seq:
