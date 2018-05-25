@@ -27,6 +27,7 @@ parallelSA:
 parallelNM:
 		$(MPI) $(CXXFLAGS) $(LDLIBS) $(INC) $(UTILS) \
 		 			src/parallel/driver.cpp	src/parallel/nelder_mead.cpp -o pNM.out
+
 clean:
 		rm *.out
 clean_seq:
