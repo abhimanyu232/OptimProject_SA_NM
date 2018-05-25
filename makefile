@@ -21,12 +21,14 @@ sequential:
 												$(SEQ) -o optimize.out
 
 parallelSA:
+		mkdir -p results
 		$(MPI) $(CXXFLAGS) $(LDLIBS) $(INC) $(UTILS) \
-					src/parallel/driver.cpp	src/parallel/simAnn.cpp -o pSA.out
+												src/parallel/simAnn.cpp -o psa.out
 
 parallelNM:
+		mkdir -p results
 		$(MPI) $(CXXFLAGS) $(LDLIBS) $(INC) $(UTILS) \
-		 			src/parallel/driver.cpp	src/parallel/nelder_mead.cpp -o pNM.out
+		 			src/parallel/driver.cpp	src/parallel/nelder_mead.cpp -o pnm.out
 
 clean:
 		rm *.out
@@ -38,8 +40,8 @@ clean_pnm:
 		pNM.out
 clean_all:
 			rm optimize.out.
-			rm pSA.out
-			rm pSA.out
+			rm pnm.out
+			rm psa.out
 			rm -R results
 
 all: sequential parallelSA parallelNM
