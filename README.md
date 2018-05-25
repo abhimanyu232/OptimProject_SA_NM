@@ -30,10 +30,21 @@ Since I have skipped a lot of the getting started stuff. I used this to get star
 
 * Place necessary header (.h) files in the *inc* folder
 
-type **Make all** from terminal to compile. 
+type **make** from terminal to compile sequential. 
 
-type **Make clean** to clear compiled intermediate and executable files. 
+type **make psa** from terminal to compile parallel simulated annealing. 
 
-type **./optimize.out** in terminal to run the executable/
+type **./optimize.out** in terminal to run the sequential executable. 
+
+type **./psa.out** in terminal to run the parallel simulated annealing executable. 
+
+type **make clean** to clear all compiled executable files. 
+
+type **clean_all** to clear all result & executable files.    
+
+
+
+
+
 
  
