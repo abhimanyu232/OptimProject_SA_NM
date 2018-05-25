@@ -30,7 +30,7 @@ Since I have skipped a lot of the getting started stuff. I used this to get star
 
 * Place necessary header (.h) files in the *inc* folder
 
-type **make ** from terminal to compile sequential. 
+type **make** from terminal to compile sequential. 
 type **make psa ** from terminal to compile parallel simulated annealing. 
 
 type **Make clean** to clear compiled intermediate and executable files. 
