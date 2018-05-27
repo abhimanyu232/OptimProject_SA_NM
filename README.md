@@ -40,7 +40,7 @@ type **mpiexec -np [no:s of processors] ./psa.out [Max_Iter] [Report Interval] [
 
 type **make clean** to clear all compiled executable files. 
 
-type **clean_all** to clear all result & executable files.    
+type **make clean_all** to clear all result & executable files.    
 
 
 
