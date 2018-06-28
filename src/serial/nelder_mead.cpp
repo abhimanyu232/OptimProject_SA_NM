@@ -30,11 +30,15 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 	Eigen::VectorXd fitness(dim+1);
 	Eigen::VectorXd simplex_point(dim);
 
+	double best_fit_last_iter, glbl_best;
+	int counter=0;
 // calculate fitness of each point
 	for (int i=0; i<=dim; i++){
 		simplex_point = (simplex.row(i)).transpose();
 		fitness(i) = fit(dim,simplex_point);
 	}
+	sort_simplex(dim, fitness, simplex);
+	glbl_best = fitness(0);
 
 	std::cout << "fitness init: \n" << fitness << '\n';
 	result_file.open("results/NMead.dat", ios::app);
@@ -42,7 +46,6 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 		cerr << "unable to write data to file" << '\n';
 		return 0;
 	}
-
 	do {
 		iter++;
 
@@ -63,9 +66,12 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 //reset shrink check
 		shrink=0;
 
+		best_fit_last_iter = fitness(0);
 // sort simplex points in ascending order of fitness //
 // potentially better implementation //
 		 sort_simplex(dim, fitness, simplex);
+		 if ( best_fit_last_iter == fitness(0) )
+		 counter++;
 
 		 Eigen::VectorXd m(dim), r(dim), c(dim), cc(dim), s(dim), worst(dim);
 		 double fitness_cc,fitness_ext,fitness_refl,fitness_contr;
@@ -131,12 +137,16 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 							}
 				 }
 		 }
+		 if (fitness(0)<glbl_best)
+		 glbl_best=fitness(0);
 
 // PRINT SCREEN
 		 if (fmod(iter,REPORT_INTERVAL)==0){
 			 cout<<"iter: "<<iter<<"\t\t"<<"best_fitness:"<<fitness(0)<<'\n';
-			 cout<<"simplex "<<iter<<":\n"<<simplex<<'\n';
+			 cout<<"simplex "<<iter<<":\n"<<'\n';
+			 std::cout << "GLOBAL BEST:" << glbl_best << '\n';
 		 }
+
 // WRITE TO FILE
 		 if (fmod(iter,REPORT_INTERVAL)==0){
 			 if (result_file){
@@ -145,6 +155,17 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 			 }
 			 else cerr << "Error writing to file on iter:"<<iter<< '\n';
 		 }
+
+
+		 if (counter == 10000){
+			 	simplex = MatrixXd::Random(dim+1,dim)*bounds;
+			 	for (int i=0; i<=dim; i++){
+			 		simplex_point = (simplex.row(i)).transpose();
+			 		fitness(i) = fit(dim,simplex_point);
+					counter = 0;
+			 	}
+		 }
+
 
 	}	while (iter <= ITER_MAX && fitness(0) > 1e-3);
 
