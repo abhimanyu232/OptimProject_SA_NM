@@ -5,6 +5,7 @@
 #include<Eigen/Core>
 #include<random>
 #include<assert.h>
+#include<chrono>
 
 
 // mkdir headers //
@@ -20,6 +21,8 @@ using namespace std;
 
 // pointer to function that takes (const int&,const VectorXd&) arguements
 typedef double (*fitVXd)(const int&, const VectorXd&);
+
+typedef std::chrono::high_resolution_clock Clock;
 
 int mkdir_p(const char *path);
 

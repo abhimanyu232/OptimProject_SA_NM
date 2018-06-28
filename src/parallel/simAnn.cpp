@@ -1,6 +1,5 @@
 #include"optimisation.h"
 #include"simAnn.h"
-#include"get_time.h"
 #include<mpi.h>
 
 
@@ -56,15 +55,9 @@ int main (int argc, char* argv[]){
           result_file << "Iteration \t Fitness Value " << endl ;
           result_file.close();
         } else {cerr<<"ERROR OPENING DAT FILE\n";}
-
         cout << "Iteration\tFitness Value\t  Best Value\tTemperature\t"
         "Accept Count\tRe-Anneal Count" << endl;
       }
-
-
-      int64 time_begin,time_end;
-      // BEGIN TIME //
-
       // random number seeding //
       std::random_device rd;
       std::mt19937 gen(rd());
@@ -79,7 +72,8 @@ int main (int argc, char* argv[]){
       double LOCAL_fit_curr,LOCAL_fit_next,LOCAL_fit_best;
 
       MPI_Barrier(MPI_COMM_WORLD);
-      time_begin=GetTimeMs64();  // chrono::highresolution maybe?
+      // BEGIN TIME //
+      auto time_begin = Clock::now();
 
       LOCAL_curr = VectorXd::Random(dim)*bounds; // random start
       LOCAL_fit_curr = fit(dim,LOCAL_curr);
@@ -150,15 +144,16 @@ int main (int argc, char* argv[]){
             LOCAL_acnt = 0;
             LOCAL_curr = LOCAL_best;
             LOCAL_fit_curr = LOCAL_fit_best;
-
-      } while (iter < ITER_MAX && global_fit.next > 0.1 );
+// iter < ITER_MAX &&
+      } while ( global_fit.next > 0.1 );
 // ----------------END PARALLEL----------------- //
 // END TIME
       MPI_Barrier(MPI_COMM_WORLD);
-      time_end=GetTimeMs64();
+      auto time_end = Clock::now();
+      std::chrono::duration<double> time_elapsed = time_end-time_begin;
       if (!id){
         cout << "\nbest fit: "<< global_fit.next << endl;
-        std::cout << "Time Elapsed: " << time_end - time_begin << "ms" << '\n';
+        std::cout << "Time Elapsed: " << time_elapsed.count() << '\n';
       }
       MPI_Finalize();
   return 0;
