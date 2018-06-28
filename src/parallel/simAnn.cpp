@@ -39,7 +39,8 @@ int main (int argc, char* argv[]){
 
     srand((unsigned int) time(0));
     fitVXd fit = NULL;        // function pointer for fitness function
-    // change function to take testfcn as arguement to remove the user input
+    // change function to take testfcn as arguement to remove the user input // 1 : Rastrigin // 2 : Rosenbrock
+
     int testfcn = 2;
     P_testFCN_choice(testfcn,fit);      // choice of test function
     int bounds = domain_limit(testfcn);     // set domain bounds
@@ -68,22 +69,22 @@ int main (int argc, char* argv[]){
       }local_fit,global_fit;
       int proc_with_best_ = 0;
 
-      Eigen::VectorXd LOCAL_curr,LOCAL_next,LOCAL_best;
-      double LOCAL_fit_curr,LOCAL_fit_next,LOCAL_fit_best;
+      Eigen::VectorXd lcl_curr,lcl_next,lcl_best;
+      double lcl_curr_fit,lcl_next_fit,lcl_best_fit;
 
       MPI_Barrier(MPI_COMM_WORLD);
       // BEGIN TIME //
       auto time_begin = Clock::now();
 
-      LOCAL_curr = VectorXd::Random(dim)*bounds; // random start
-      LOCAL_fit_curr = fit(dim,LOCAL_curr);
-      LOCAL_best = LOCAL_curr;
-      LOCAL_fit_best = LOCAL_fit_curr;
+      lcl_curr = VectorXd::Random(dim)*bounds; // random start
+      lcl_curr_fit = fit(dim,lcl_curr);
+      lcl_best = lcl_curr;
+      lcl_best_fit = lcl_curr_fit;
 
       int k=0;        // annealing parameter
       int reAnnCnt = 0;
       int iter=0;
-      int LOCAL_acnt,GLOBAL_acnt=0;     // counts number of accepted values of next
+      int lcl_acnt,glbl_acnt=0;     // counts number of accepted values of next
       //double residual=1.;
       double temp=T0;
 
@@ -94,56 +95,56 @@ int main (int argc, char* argv[]){
               iter++;
               k++;
     // GENERATE RANDOM STEP FOR EACH PROCESSOR //
-              LOCAL_next = LOCAL_curr + (VectorXd::Random(dim)*(temp/T0)*bounds).
+              lcl_next = lcl_curr + (VectorXd::Random(dim)*(temp/T0)*bounds).
                            cwiseProduct((round(ArrayXd::Random(dim))).matrix()) +
                            MatrixXd::Ones(dim,1)*bounds*(id/(2*size));
     // enforce domain and reflect of out of domain
-              enforce_boundary(dim,bounds,LOCAL_next);
+              enforce_boundary(dim,bounds,lcl_next);
 
-              LOCAL_fit_next = fit(dim,LOCAL_next);
+              lcl_next_fit = fit(dim,lcl_next);
               //residual = fabs(fit_curr - fit_next);
-              std::bernoulli_distribution Pb(PAccept(temp,LOCAL_fit_curr,LOCAL_fit_next));
-              if (LOCAL_fit_next<LOCAL_fit_curr) {    // good point
-                LOCAL_curr = LOCAL_next;
-                LOCAL_fit_curr = LOCAL_fit_next;
-                LOCAL_acnt++;                 // acceptance count increment
-                if (LOCAL_fit_next<LOCAL_fit_best) {
-                    LOCAL_best = LOCAL_next;
-                    LOCAL_fit_best=LOCAL_fit_next;
+              std::bernoulli_distribution Pb(PAccept(temp,lcl_curr_fit,lcl_next_fit));
+              if (lcl_next_fit<lcl_curr_fit) {    // good point
+                lcl_curr = lcl_next;
+                lcl_curr_fit = lcl_next_fit;
+                lcl_acnt++;                 // acceptance count increment
+                if (lcl_next_fit<lcl_best_fit) {
+                    lcl_best = lcl_next;
+                    lcl_best_fit=lcl_next_fit;
                 }
               }
-              else if (LOCAL_fit_next>=LOCAL_fit_curr) { // bad point
+              else if (lcl_next_fit>=lcl_curr_fit) { // bad point
                 if (Pb(gen)) {
-                    LOCAL_curr = LOCAL_next;
-                    LOCAL_fit_curr = LOCAL_fit_next;
-                    LOCAL_acnt++;
+                    lcl_curr = lcl_next;
+                    lcl_curr_fit = lcl_next_fit;
+                    lcl_acnt++;
                 }
               }
 // MOVE COOLING OUTSIDE // I.E RUN 100 ITER AT SAME TEMPERATURE
               cooling(coolScheme, k , &temp);
 // ------------------------ SEQUENTIAL SIMANN END ------------------------- //
-              local_fit.next = LOCAL_fit_curr;
+              local_fit.next = lcl_curr_fit;
               local_fit.rank = id;
             //}
             MPI_Allreduce(&local_fit,&global_fit,1,MPI_DOUBLE_INT,MPI_MINLOC,MPI_COMM_WORLD);
-            MPI_Allreduce(&LOCAL_acnt,&GLOBAL_acnt,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
+            MPI_Allreduce(&lcl_acnt,&glbl_acnt,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
             //MPI_Bcast(&global_fit,1,MPI_Double,0,MPI_COMM_WORLD);
 // BROADCAST BEST POINT FROM BEST PROC TO EVERYONE ELSE AND REPEAT
             proc_with_best_ = global_fit.rank;
-            MPI_Bcast(LOCAL_curr.data(),LOCAL_curr.size(),MPI_DOUBLE,proc_with_best_,MPI_COMM_WORLD);
+            MPI_Bcast(lcl_curr.data(),lcl_curr.size(),MPI_DOUBLE,proc_with_best_,MPI_COMM_WORLD);
             if (id == 0){
               if (fmod(iter,REPORT_INTERVAL)==0)
               cout << "best fit "<< global_fit.next << endl;
             }
-          } while(GLOBAL_acnt <= 100 && global_fit.next > 0.1);
+          } while(glbl_acnt <= 100 && global_fit.next > 0.1);
 
             // REANNEAL AND RESET PARAMETERS //
             reAnnCnt++;
             k = 1;
             temp = T0*0.95;
-            LOCAL_acnt = 0;
-            LOCAL_curr = LOCAL_best;
-            LOCAL_fit_curr = LOCAL_fit_best;
+            lcl_acnt = 0;
+            lcl_curr = lcl_best;
+            lcl_curr_fit = lcl_best_fit;
 // iter < ITER_MAX &&
       } while ( global_fit.next > 0.1 );
 // ----------------END PARALLEL----------------- //
