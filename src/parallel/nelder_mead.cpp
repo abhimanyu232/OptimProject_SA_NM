@@ -1,47 +1,85 @@
 #include"optimisation.h"
 #include"nelder_mead.h"
-#include"get_time.h"
+#include<mpi.h>
 
-extern double ITER_MAX;
-extern double REPORT_INTERVAL;
+double ITER_MAX = 10000;
+double REPORT_INTERVAL = 500;
 
-int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit){
-	if (testfcn > 5) {
-		std::cout << "wrong test function. ERROR" << '\n';
-		return 0;
+int main (int argc, char* argv[]){
+
+    MPI_Init(&argc,&argv);
+    int size, id;
+    MPI_Comm_rank(MPI_COMM_WORLD, &id);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+  if (argc == 1){
+    if (!id)
+    std::cout << "default ITER_MAX:"<< ITER_MAX << '\n';;
+  }
+  else if (argc >= 3){
+    ITER_MAX = strtod(argv[1],NULL);
+    REPORT_INTERVAL = strtod(argv[2],NULL);
+    if (!id)
+    std::cout << "ITER_MAX: " << ITER_MAX << "\tREPORT INTERVAL :" << REPORT_INTERVAL<< '\n';
+  }
+
+// TAKE COMMAND LINE ARGUEMENT TO REDUCE COMMUNICATION
+    int dim;
+    if (id == 0){
+      cout << "enter search space dimension ( 2<= Dim <="<<DIM_MAX<<")"<<endl;
+      while (!(cin >> dim) || dim < 2 || dim > DIM_MAX)
+      cout<<" value out of range (2<=Dimension<="<< DIM_MAX << ")"<< '\n';
+    }
+    MPI_Bcast(&dim,1,MPI_INT,0,MPI_COMM_WORLD);
+
+    if (dim==0)
+    MPI_Finalize();
+
+    srand((unsigned int) time(0));
+
+    fitVXd fit = NULL;        // function pointer for fitness function
+		// change function to take testfcn as arguement to remove the user input
+		// 1 : Rastrigin // 2 : Rosenbrock
+    int testfcn = 1;
+    P_testFCN_choice(testfcn,fit);      // choice of test function
+    int bounds = domain_limit(testfcn);     // set domain bounds
+
+    struct {
+      double next;
+      int rank;
+    }local_fit,global_fit;
+
+
+	if (id==0){
+	  ofstream result_file("results/NMead.dat");
+	  if ( result_file.is_open() ){
+	    result_file << "Iteration \t Fitness Value " << endl ;
+	  }
+		else {cerr << "ERROR OPENING DAT FILE\n";}
 	}
 
-  ofstream result_file("results/NMead.dat");
-  if ( result_file.is_open() ){
-    result_file << "Iteration \t Fitness Value " << endl ;
-    result_file.close();
-  }
-	else {cerr << "ERROR OPENING DAT FILE\n";}
-
-	int64 time_begin,time_end;
 // BEGIN TIME //
-	time_begin = GetTimeMs64();
+  MPI_Barrier(MPI_COMM_WORLD);
+  auto time_begin = Clock::now();
 
 	int shrink=0,iter=0;
 	Eigen::MatrixXd simplex; // dim+1,dim //
-	simplex = MatrixXd::Random(dim+1,dim)*bounds;
-	std::cout << "starting simplex: "<< '\n' <<simplex << '\n';
+	simplex = MatrixXd::Random(dim+1,dim)*bounds;//*((id+1)/size);
+	//std::cout << "starting simplex: "<< '\n' <<simplex << '\n';
 
-	Eigen::VectorXd fitness(dim+1);
-	Eigen::VectorXd simplex_point(dim);
+	Eigen::VectorXd fitness(dim+1), simplex_point(dim);
 
+	double best_fit_last_iter, glbl_best;
+	int counter=0;
 // calculate fitness of each point
 	for (int i=0; i<=dim; i++){
 		simplex_point = (simplex.row(i)).transpose();
 		fitness(i) = fit(dim,simplex_point);
 	}
+	sort_simplex(dim, fitness, simplex);
+	glbl_best = fitness(0);
 
-	std::cout << "fitness init: \n" << fitness << '\n';
-	result_file.open("results/NMead.dat", ios::app);
-	if (!result_file.is_open()){
-		cerr << "unable to write data to file" << '\n';
-		return 0;
-	}
+	//std::cout << "fitness init: \n" << fitness << '\n';
 
 	do {
 		iter++;
@@ -63,9 +101,12 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 //reset shrink check
 		shrink=0;
 
+		best_fit_last_iter = fitness(0);
 // sort simplex points in ascending order of fitness //
 // potentially better implementation //
 		 sort_simplex(dim, fitness, simplex);
+		 if ( best_fit_last_iter == fitness(0) )
+		 counter++;
 
 		 Eigen::VectorXd m(dim), r(dim), c(dim), cc(dim), s(dim), worst(dim);
 		 double fitness_cc,fitness_ext,fitness_refl,fitness_contr;
@@ -131,31 +172,66 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 							}
 				 }
 		 }
+		 if (fitness(0)<glbl_best)
+		 glbl_best=fitness(0);
 
 // PRINT SCREEN
-		 if (fmod(iter,REPORT_INTERVAL)==0){
+/*		 if (fmod(iter,REPORT_INTERVAL)==0){
 			 cout<<"iter: "<<iter<<"\t\t"<<"best_fitness:"<<fitness(0)<<'\n';
-			 cout<<"simplex "<<iter<<":\n"<<simplex<<'\n';
+			 cout<<"simplex "<<iter<<":\n"<<'\n';
+			 std::cout << "GLOBAL BEST:" << glbl_best << '\n';
 		 }
+
 // WRITE TO FILE
-		 if (fmod(iter,REPORT_INTERVAL)==0){
+	 if (fmod(iter,REPORT_INTERVAL)==0){
 			 if (result_file){
 			 		result_file << setw(9) <<iter<<"\t"<<
 			 		setprecision(10)<<setw(13)<<fitness(0)<< endl ;
 			 }
 			 else cerr << "Error writing to file on iter:"<<iter<< '\n';
 		 }
+*/
 
-	}	while (iter <= ITER_MAX);
+		 local_fit.next = glbl_best;
+		 local_fit.rank = id;
+	 //}
+	 MPI_Allreduce(&local_fit,&global_fit,1,MPI_DOUBLE_INT,MPI_MINLOC,MPI_COMM_WORLD);
+	 if (!id){
+		 if (fmod(iter,1000)==0)
+ 		 std::cout << "global best across proc:" << global_fit.next << '\n';
+		 //std::cout << "iter : "<< iter << '\n';
+	 }
+	 if (fmod(iter,1000)==0)
+	 std::cout << "fitness local for proc" << id << ":" << fitness(0) << '\n';
 
-	time_end = GetTimeMs64();
-	cout << "Time Elapsed: " << time_end - time_begin << "ms" << '\n';
+// RESETT SIMPLEX IF STUCK IN LOCAL MINIMA //
+/*		 if (counter == 10){
+			 	simplex = MatrixXd::Random(dim+1,dim)*bounds;
+			 	for (int i=0; i<=dim; i++){
+			 		simplex_point = (simplex.row(i)).transpose();
+			 		fitness(i) = fit(dim,simplex_point);
+					counter = 0;
+			 	}
+		 }
+*/
+	} while ( global_fit.next  > 0.1);
 
+	MPI_Barrier(MPI_COMM_WORLD);
+	auto time_end = Clock::now();
+	std::chrono::duration<double> time_elapsed = time_end-time_begin;
+	cout << "Time Elapsed: " << time_elapsed.count() << "ms" << '\n';
+
+	MPI_Barrier(MPI_COMM_WORLD);
+	if (!id){
 	cout <<'\n' << "BEST POINT:"<< '\n';
-	cout << simplex << '\n';
+	//cout << simplex << '\n';
+	std::cout << "BEST FITNESS: "<< global_fit.next << '\n';
+	}
 
+	MPI_Finalize();
 return 0;
 }
+
 
 // SORT SIMPLEX POINTS IN ASC ORDER OF FITNESS : simplex(dim) is worst point
 	void sort_simplex(const int& dim, VectorXd& fitness, MatrixXd& simplex){

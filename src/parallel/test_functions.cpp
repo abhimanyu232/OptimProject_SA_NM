@@ -26,12 +26,12 @@ void P_testFCN_choice(const int& choice,fitVXd& fitness){
 switch (choice) {
   case 1:
     fitness = rastrigin;
-    std::cout << "rosenbrock_Nd chosen" << '\n';
+    //std::cout << "rastrigin chosen" << '\n';
     break;
 
   case 2:
     fitness = rosenbrock_Nd;
-    std::cout << "rosenbrock_Nd chosen" << '\n';
+    //std::cout << "rosenbrock_Nd chosen" << '\n';
     break;
 }
 }
