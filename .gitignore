@@ -6,5 +6,6 @@ test/
 *out
 *asv
 *mat
+*py
 #core dump
 core
