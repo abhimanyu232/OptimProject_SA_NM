@@ -10,7 +10,7 @@ int simAnnealing(const int& testfcn,const int& bounds,const int& dim, fitVXd fit
   int coolScheme = 0;
   cooling_choice(&coolScheme);  // sets variable coolScheme
 
-  ofstream result_file("results/Sim_Ann.dat");
+  ofstream result_file("results/serial/Sim_Ann.dat");
   if ( result_file.is_open() ){
     result_file << "Iteration \t Fitness Value " << endl ;
     result_file.close();

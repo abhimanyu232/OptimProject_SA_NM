@@ -7,7 +7,7 @@ double REPORT_INTERVAL = 100; // default
 int main(int argc, char *argv[]){
 
   // create directory for results
-  char path1[] = "results";
+  char path1[] = "results/serial";
   mkdir_p(path1);
 
   int opt_choice;

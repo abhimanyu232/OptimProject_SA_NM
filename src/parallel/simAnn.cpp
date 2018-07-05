@@ -41,7 +41,7 @@ int main (int argc, char* argv[]){
     fitVXd fit = NULL;        // function pointer for fitness function
     // change function to take testfcn as arguement to remove the user input // 1 : Rastrigin // 2 : Rosenbrock
 
-    int testfcn = 2;
+    int testfcn = 1;
     P_testFCN_choice(testfcn,fit);      // choice of test function
     int bounds = domain_limit(testfcn);     // set domain bounds
 
@@ -50,21 +50,20 @@ int main (int argc, char* argv[]){
     const int coolScheme = 1;
 
 //  - --------------- MAIN ALGO - ----------------------------- //
-      if (!id){
-        ofstream result_file("results/Sim_Ann.dat");
-        if ( result_file.is_open() ){
-          result_file << "Iteration \t Fitness Value " << endl ;
-          result_file.close();
-        } else {cerr<<"ERROR OPENING DAT FILE\n";}
-        cout << "Iteration\tFitness Value\t  Best Value\tTemperature\t"
-        "Accept Count\tRe-Anneal Count" << endl;
-      }
+      string path ="results/parallel/Sim_Ann_"+  to_string(id) + ".dat";
+      ofstream result_file(path);
+      if ( result_file.is_open() ){
+        result_file << "Iteration \t Fitness Value " << endl ;
+      } else {cerr<<"ERROR OPENING DAT FILE\n";}
+      cout << "Iteration\tFitness Value\t  Best Value\tTemperature\t"
+      "Accept Count\tRe-Anneal Count" << endl;
+
       // random number seeding //
       std::random_device rd;
       std::mt19937 gen(rd());
 
       struct {
-        double next;
+        double best;
         int rank;
       }local_fit,global_fit;
       int proc_with_best_ = 0;
@@ -84,9 +83,14 @@ int main (int argc, char* argv[]){
       int k=0;        // annealing parameter
       int reAnnCnt = 0;
       int iter=0;
-      int lcl_acnt,glbl_acnt=0;     // counts number of accepted values of next
+      int lcl_acnt=0;
+      //int glbl_acnt=0;     // counts number of accepted values of best
       //double residual=1.;
       double temp=T0;
+      double GLOBAL_MINIMUM = 1e12;
+
+      if (!id) // ONLY FOR PROC 0 TO TRACK //
+      GLOBAL_MINIMUM = lcl_best_fit ;
 
       do {  // ALL PROCESSES
           do {
@@ -123,20 +127,27 @@ int main (int argc, char* argv[]){
 // MOVE COOLING OUTSIDE // I.E RUN 100 ITER AT SAME TEMPERATURE
               cooling(coolScheme, k , &temp);
 // ------------------------ SEQUENTIAL SIMANN END ------------------------- //
-              local_fit.next = lcl_curr_fit;
+              local_fit.best = lcl_curr_fit;
               local_fit.rank = id;
             //}
             MPI_Allreduce(&local_fit,&global_fit,1,MPI_DOUBLE_INT,MPI_MINLOC,MPI_COMM_WORLD);
-            MPI_Allreduce(&lcl_acnt,&glbl_acnt,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
+            //MPI_Allreduce(&lcl_acnt,&glbl_acnt,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
             //MPI_Bcast(&global_fit,1,MPI_Double,0,MPI_COMM_WORLD);
 // BROADCAST BEST POINT FROM BEST PROC TO EVERYONE ELSE AND REPEAT
             proc_with_best_ = global_fit.rank;
             MPI_Bcast(lcl_curr.data(),lcl_curr.size(),MPI_DOUBLE,proc_with_best_,MPI_COMM_WORLD);
-            if (id == 0){
-              if (fmod(iter,REPORT_INTERVAL)==0)
-              cout << "best fit "<< global_fit.next << endl;
+
+            if (!id){
+              if (global_fit.best < GLOBAL_MINIMUM)
+                  GLOBAL_MINIMUM = global_fit.best;
+              cout << "best fit "<< GLOBAL_MINIMUM << endl;
             }
-          } while(glbl_acnt <= 100 && global_fit.next > 0.1);
+
+            if (fmod(iter,REPORT_INTERVAL)==0){
+              result_file << setw(9) <<iter<<"\t"<<
+              setprecision(10)<<setw(13)<<local_fit.best<< endl ;
+            }
+          } while(lcl_acnt <= 100 && global_fit.best > 0.1);
 
             // REANNEAL AND RESET PARAMETERS //
             reAnnCnt++;
@@ -146,14 +157,14 @@ int main (int argc, char* argv[]){
             lcl_curr = lcl_best;
             lcl_curr_fit = lcl_best_fit;
 // iter < ITER_MAX &&
-      } while ( global_fit.next > 0.1 );
+      } while ( global_fit.best > 0.1 );
 // ----------------END PARALLEL----------------- //
 // END TIME
       MPI_Barrier(MPI_COMM_WORLD);
       auto time_end = Clock::now();
       std::chrono::duration<double> time_elapsed = time_end-time_begin;
       if (!id){
-        cout << "\nbest fit: "<< global_fit.next << endl;
+        cout << "\nbest fit: "<< global_fit.best << endl;
         std::cout << "Time Elapsed: " << time_elapsed.count() << '\n';
       }
       MPI_Finalize();

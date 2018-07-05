@@ -35,7 +35,6 @@ int main (int argc, char* argv[]){
     if (dim==0)
     MPI_Finalize();
 
-    srand((unsigned int) time(0));
 
     fitVXd fit = NULL;        // function pointer for fitness function
 		// change function to take testfcn as arguement to remove the user input
@@ -44,28 +43,30 @@ int main (int argc, char* argv[]){
     P_testFCN_choice(testfcn,fit);      // choice of test function
     int bounds = domain_limit(testfcn);     // set domain bounds
 
+    auto seed = chrono::high_resolution_clock::now().time_since_epoch().count();
+    std::mt19937 generator (id*seed);
+    std::uniform_real_distribution<double> dis(0.,1.);
+    auto randGen = [&] () {return dis(generator)*bounds ; };
+
     struct {
-      double next;
+      double best;
       int rank;
     }local_fit,global_fit;
 
-
-	if (id==0){
-	  ofstream result_file("results/NMead.dat");
+    string path = "results/parallel/NMEAD_"+  to_string(id) + ".dat";
+	  ofstream result_file(path);
 	  if ( result_file.is_open() ){
 	    result_file << "Iteration \t Fitness Value " << endl ;
 	  }
 		else {cerr << "ERROR OPENING DAT FILE\n";}
-	}
 
 // BEGIN TIME //
   MPI_Barrier(MPI_COMM_WORLD);
   auto time_begin = Clock::now();
 
 	int shrink=0,iter=0;
-	Eigen::MatrixXd simplex; // dim+1,dim //
-	simplex = MatrixXd::Random(dim+1,dim)*bounds;//*((id+1)/size);
-	//std::cout << "starting simplex: "<< '\n' <<simplex << '\n';
+	Eigen::MatrixXd simplex;
+  simplex = MatrixXd::NullaryExpr(dim+1,dim,randGen);
 
 	Eigen::VectorXd fitness(dim+1), simplex_point(dim);
 
@@ -100,7 +101,6 @@ int main (int argc, char* argv[]){
 		}
 //reset shrink check
 		shrink=0;
-
 		best_fit_last_iter = fitness(0);
 // sort simplex points in ascending order of fitness //
 // potentially better implementation //
@@ -180,7 +180,7 @@ int main (int argc, char* argv[]){
 			 cout<<"simplex "<<iter<<":\n"<<'\n';
 			 std::cout << "GLOBAL BEST:" << glbl_best << '\n';
 		 }
-
+*/
 // WRITE TO FILE
 	 if (fmod(iter,REPORT_INTERVAL)==0){
 			 if (result_file){
@@ -189,42 +189,39 @@ int main (int argc, char* argv[]){
 			 }
 			 else cerr << "Error writing to file on iter:"<<iter<< '\n';
 		 }
-*/
 
-		 local_fit.next = glbl_best;
+		 local_fit.best = glbl_best;
 		 local_fit.rank = id;
-	 //}
-	 MPI_Allreduce(&local_fit,&global_fit,1,MPI_DOUBLE_INT,MPI_MINLOC,MPI_COMM_WORLD);
-	 if (!id){
-		 if (fmod(iter,1000)==0)
- 		 std::cout << "global best across proc:" << global_fit.next << '\n';
-		 //std::cout << "iter : "<< iter << '\n';
-	 }
-	 if (fmod(iter,1000)==0)
-	 std::cout << "fitness local for proc" << id << ":" << fitness(0) << '\n';
 
-// RESETT SIMPLEX IF STUCK IN LOCAL MINIMA //
-/*		 if (counter == 10){
-			 	simplex = MatrixXd::Random(dim+1,dim)*bounds;
+   MPI_Allreduce(&local_fit,&global_fit,1,MPI_DOUBLE_INT,MPI_MINLOC,MPI_COMM_WORLD);
+   if (fmod(iter,REPORT_INTERVAL)==0){
+	   if (!id){
+ 		    std::cout << "global best across proc:" << global_fit.best << '\n';
+		 //std::cout << "iter : "<< iter << '\n';
+	   }
+   }
+
+// RESET SIMPLEX IF STUCK IN LOCAL MINIMA //
+		 if (counter == 1000000/4){
+			 	simplex = MatrixXd::NullaryExpr(dim+1,dim,randGen);
 			 	for (int i=0; i<=dim; i++){
 			 		simplex_point = (simplex.row(i)).transpose();
 			 		fitness(i) = fit(dim,simplex_point);
 					counter = 0;
 			 	}
 		 }
-*/
-	} while ( global_fit.next  > 0.1);
+
+	} while ( global_fit.best  > 0.1);
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	auto time_end = Clock::now();
 	std::chrono::duration<double> time_elapsed = time_end-time_begin;
 	cout << "Time Elapsed: " << time_elapsed.count() << "ms" << '\n';
 
-	MPI_Barrier(MPI_COMM_WORLD);
 	if (!id){
 	cout <<'\n' << "BEST POINT:"<< '\n';
 	//cout << simplex << '\n';
-	std::cout << "BEST FITNESS: "<< global_fit.next << '\n';
+	std::cout << "BEST FITNESS: "<< global_fit.best << '\n';
 	}
 
 	MPI_Finalize();

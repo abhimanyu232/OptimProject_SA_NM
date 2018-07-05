@@ -11,24 +11,26 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 		return 0;
 	}
 
-  ofstream result_file("results/NMead.dat");
+  ofstream result_file("results/serial/NMead.dat");
   if ( result_file.is_open() ){
     result_file << "Iteration \t Fitness Value " << endl ;
-    result_file.close();
   }
 	else {cerr << "ERROR OPENING DAT FILE\n";}
 
-	int64 time_begin,time_end;
-// BEGIN TIME //
-	time_begin = GetTimeMs64();
+	auto seed = chrono::high_resolution_clock::now().time_since_epoch().count();
+	std::mt19937 generator (seed);
+	std::uniform_real_distribution<double> dis(0.,1.);
+	auto randGen = [&] () {return dis(generator)*bounds ; };
+
+	// BEGIN TIME //
+	auto time_begin = Clock::now();
 
 	int shrink=0,iter=0;
 	Eigen::MatrixXd simplex; // dim+1,dim //
-	simplex = MatrixXd::Random(dim+1,dim)*bounds;
+	simplex = MatrixXd::NullaryExpr(dim+1,dim,randGen);
 	std::cout << "starting simplex: "<< '\n' <<simplex << '\n';
 
-	Eigen::VectorXd fitness(dim+1);
-	Eigen::VectorXd simplex_point(dim);
+	Eigen::VectorXd fitness(dim+1), simplex_point(dim);
 
 	double best_fit_last_iter, glbl_best;
 	int counter=0;
@@ -40,12 +42,6 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 	sort_simplex(dim, fitness, simplex);
 	glbl_best = fitness(0);
 
-	std::cout << "fitness init: \n" << fitness << '\n';
-	result_file.open("results/NMead.dat", ios::app);
-	if (!result_file.is_open()){
-		cerr << "unable to write data to file" << '\n';
-		return 0;
-	}
 	do {
 		iter++;
 
@@ -65,7 +61,6 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 		}
 //reset shrink check
 		shrink=0;
-
 		best_fit_last_iter = fitness(0);
 // sort simplex points in ascending order of fitness //
 // potentially better implementation //
@@ -155,9 +150,8 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 			 else cerr << "Error writing to file on iter:"<<iter<< '\n';
 		 }
 
-
-		 if (counter == 1000000/4){
-			 	simplex = MatrixXd::Random(dim+1,dim)*bounds;
+		 if (counter == 10000){
+			 	simplex = MatrixXd::NullaryExpr(dim+1,dim,randGen);
 			 	for (int i=0; i<=dim; i++){
 			 		simplex_point = (simplex.row(i)).transpose();
 			 		fitness(i) = fit(dim,simplex_point);
@@ -165,11 +159,11 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 			 	}
 		 }
 
-
 	}	while (iter <= ITER_MAX && fitness(0) > 1e-3);
 
-	time_end = GetTimeMs64();
-	cout << "Time Elapsed: " << time_end - time_begin << "ms" << '\n';
+	auto time_end = Clock::now();
+	std::chrono::duration<double> time_elapsed = time_end-time_begin;
+	cout << "Time Elapsed: " << time_elapsed.count() << "ms" << '\n';
 
 	cout <<'\n' << "BEST POINT:"<< '\n';
 	cout << simplex << '\n';

@@ -1,8 +1,11 @@
-% data = dlmread('results/Sim_Ann.dat', '\t', 1,0);
-data = dlmread('M:\0_Code\Projects\OptimisationProject\results\NMead.dat', '\t', 1,0);
+% data = dlmread('M:\0_Code\Projects\OptimisationProject\results\serial\Sim_Ann.dat', '\t', 1,0);
+data = dlmread('M:\0_Code\Projects\OptimisationProject\results\parallel\Sim_Ann_6.dat', '\t', 1,0);
+% data = dlmread('M:\0_Code\Projects\OptimisationProject\results\serial\NMead.dat', '\t', 1,0);
+% data = dlmread('M:\0_Code\Projects\OptimisationProject\results\parallel\NMead_1.dat', '\t', 1,0);
+
 %sort_fit = sort(data(:,2));
 N=length(data);
-close()
+% close()
 figure();
 sz = 15;
 c = linspace(1,10,length(data));
