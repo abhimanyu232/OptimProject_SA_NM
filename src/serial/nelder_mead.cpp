@@ -70,8 +70,7 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 // sort simplex points in ascending order of fitness //
 // potentially better implementation //
 		 sort_simplex(dim, fitness, simplex);
-		 if ( best_fit_last_iter == fitness(0) )
-		 counter++;
+		 if ( best_fit_last_iter == fitness(0) ){ counter++; } else { counter=0; }
 
 		 Eigen::VectorXd m(dim), r(dim), c(dim), cc(dim), s(dim), worst(dim);
 		 double fitness_cc,fitness_ext,fitness_refl,fitness_contr;
@@ -157,7 +156,7 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 		 }
 
 
-		 if (counter == 10000){
+		 if (counter == 1000000/4){
 			 	simplex = MatrixXd::Random(dim+1,dim)*bounds;
 			 	for (int i=0; i<=dim; i++){
 			 		simplex_point = (simplex.row(i)).transpose();

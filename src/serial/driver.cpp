@@ -2,7 +2,7 @@
 #include <stdlib.h>     /* strtod */
 
 double ITER_MAX = 1e9;           // default
-double REPORT_INTERVAL = 100000; // default
+double REPORT_INTERVAL = 100; // default
 
 int main(int argc, char *argv[]){
 

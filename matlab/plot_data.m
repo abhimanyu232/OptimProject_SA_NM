@@ -1,5 +1,5 @@
 % data = dlmread('results/Sim_Ann.dat', '\t', 1,0);
-data = dlmread('results/NMead.dat', '\t', 1,0);
+data = dlmread('M:\0_Code\Projects\OptimisationProject\results\NMead.dat', '\t', 1,0);
 %sort_fit = sort(data(:,2));
 N=length(data);
 close()
