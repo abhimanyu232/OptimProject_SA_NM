@@ -1,24 +1,31 @@
 #include"optimisation.h"
 #include"simAnn.h"
-#include"get_time.h"
 
 extern double ITER_MAX;
 extern double REPORT_INTERVAL;
 
 int simAnnealing(const int& testfcn,const int& bounds,const int& dim, fitVXd fit){
+  double alpha = 0.95;
+  double beta = 0.2;
+  ofstream result_file("results/serial/SAnn_time.dat",ios::app);
   // CHOICE OF COOLING SCHEME //
+  for (alpha=0.65;alpha<=.90;alpha+=0.05){
+  result_file << "alpha = " << alpha << endl;
   int coolScheme = 0;
-  cooling_choice(&coolScheme);  // sets variable coolScheme
+  for (coolScheme =1;coolScheme<=1;coolScheme++){
+    result_file << "coolScheme:" << coolScheme <<endl;
+  for (int i=0;i<20;i++){
 
-  ofstream result_file("results/serial/Sim_Ann.dat");
-  if ( result_file.is_open() ){
-    result_file << "Iteration \t Fitness Value " << endl ;
-    result_file.close();
-  } else {cerr<<"ERROR OPENING DAT FILE\n";}
+  //cooling_choice(&coolScheme);  // sets variable coolScheme
+  //ofstream result_file("results/serial/Sim_Ann.dat");
+  //if ( result_file.is_open() ){
+  //  result_file << "Iteration \t Fitness Value " << endl ;
+  //  result_file.close();
+  //} else {cerr<<"ERROR OPENING DAT FILE\n";}
 
-  int64 time_begin,time_end;
+
   // BEGIN TIME //
-  time_begin=GetTimeMs64();
+  auto time_begin = Clock::now();
 
   // random number seeding //
   std::random_device rd;
@@ -45,11 +52,12 @@ int simAnnealing(const int& testfcn,const int& bounds,const int& dim, fitVXd fit
   //double residual=1.;
   double temp=T0;
 
-  result_file.open("results/Sim_Ann.dat", ios::app);
+  /*result_file.open("results/Sim_Ann.dat", ios::app);
   if (!result_file.is_open()){
     cerr << "unable to write data to file" << '\n';
     return 0;
   }
+  */
   do {
     do {
       iter++;
@@ -82,29 +90,28 @@ int simAnnealing(const int& testfcn,const int& bounds,const int& dim, fitVXd fit
             }
       }
       // MOVE COOLING OUTSIDE // I.E RUN 100 ITER AT SAME TEMPERATURE
-      cooling(coolScheme, k , &temp);
+      cooling(coolScheme, k , &temp,alpha,beta);
 
       // WRITE TO FILE
-      if ((fmod(iter,REPORT_INTERVAL))==0){
+      /*if ((fmod(iter,REPORT_INTERVAL))==0){
         if (result_file){
             result_file << setw(9) <<iter<<"\t"<<
             setprecision(10)<<setw(13)<<fit_curr<< endl ;
         } else {cerr << "ERROR WRITING DATA TO FILE";}
-      }
+      }*/
 
       // PRINT SCREEN
-      if ( fmod(iter,(REPORT_INTERVAL*10000)) ==0 ) {
+      if ( fmod(iter,(REPORT_INTERVAL*1000000)) ==0 ) {
         cout << "Iteration\tFitness Value\t  Best Value\tTemperature\t"
         "N.Accept \tN.Re-Anneal" << endl;
       }
-      if ( fmod(iter,(REPORT_INTERVAL*100)) ==0 ){
+      if ( fmod(iter,(REPORT_INTERVAL*1000)) ==0 ){
           cout << setw(9) <<iter<<"\t"<<setprecision(6)<<setw(13)<<fit_curr<<
           "\t  "<<setprecision(6)<<setw(10)<<fit_best<<'\t'<<setw(8)<<
           setprecision(6)<<temp<<'\t'<<setw(12)<<acnt<<'\t'<<reAnnCnt<<endl;
       }
 
-
-    } while( acnt <=100 );
+    } while( acnt <=100  );
     // REANNEAL AND RESET PARAMETERS //
     reAnnCnt++;
     k = 1;
@@ -113,16 +120,23 @@ int simAnnealing(const int& testfcn,const int& bounds,const int& dim, fitVXd fit
     curr = best;
     fit_curr = fit_best;
   }
-  while ( iter <= ITER_MAX && fit_best > 1e-3 );
+  while ( iter <= 50000000  && fit_best > 0.1 );
 
   // END TIME
-  time_end=GetTimeMs64();
-
+  auto time_end = Clock::now();
+  std::chrono::duration<double> time_elapsed = time_end-time_begin;
   std::cout <<'\n' << "BEST POINT:"<< '\n';
   std::cout << best << '\n';
-  std::cout << "Time Elapsed: " << time_end - time_begin << "ms" << '\n';
-  result_file.close();
-//std::cout << "residual" << residual<< '\n';
+  std::cout << "Time Elapsed: " << time_elapsed.count() << "ms" << '\n';
+  if ( result_file.is_open() ){
+    result_file << time_elapsed.count()  << endl;
+  } else {cerr<<"ERROR OPENING DAT FILE\n";}
+  //std::cout << "residual" << residual<< '\n';
+  // 10 iterations
+      }
+    }
+  } //coolScheme loop
+
 return 0;
 }
 
@@ -143,16 +157,16 @@ void cooling_choice(int * choice){
 
 // k annealing parameter // same as iteration until reannealing //
 // initial temperature set in simAnn.h //
-bool cooling(const int choice, int k, double *temp){
+bool cooling(const int choice, int k, double *temp, double alpha, double beta){
   switch (choice) {
-  case 1: *temp = T0*pow(0.95,k); return 1;  // BEST
+  case 1: *temp = T0*pow(alpha,k); return 1;  // BEST
 
-  case 2: *temp = T0/k; return 1;       //fast annealing
+  case 2: *temp = T0/(beta*k); return 1;       //fast annealing
 
   case 3: *temp = T0/log(k); return 1; //boltzman annealing
 
   default: cout << "invalid cooling choice" << '\n'; return 0;
-}
+  }
 }
 
 // prob of accepting bad value //

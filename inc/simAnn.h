@@ -6,6 +6,6 @@
 #define SEARCH_DOMAIN 1000
 #define K_BOLTZ
 
-bool cooling(const int choice, int k, double *temp);
+bool cooling(const int choice, int k, double *temp, double alpha, double beta);
 void cooling_choice(int * choice);
 float PAccept(double temp, double fit_curr, double fit_next);

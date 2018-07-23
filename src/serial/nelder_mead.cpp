@@ -10,12 +10,21 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 		std::cout << "wrong test function. ERROR" << '\n';
 		return 0;
 	}
+	ofstream result_file("results/serial/NM_time.dat",ios::app);
+	/*if ( result_file.is_open() ){
+	result_file << "Iteration \t Fitness Value " << endl ;
+}
+else {cerr << "ERROR OPENING DAT FILE\n";}*/
 
-  ofstream result_file("results/serial/NMead.dat");
-  if ( result_file.is_open() ){
-    result_file << "Iteration \t Fitness Value " << endl ;
-  }
-	else {cerr << "ERROR OPENING DAT FILE\n";}
+
+	int 	 rand_restart = 100;
+	double alpha 				= 1.0;										// reflection
+	double gamma 				= 2.0;										// expansion
+	double beta 				= 0.5;									// contraction
+	double rho			 		=	0.5;									// shrinkage
+	assert(gamma >1 && beta < 1 && rho < 1);
+	assert(gamma > alpha);
+	for (int i = 0;i<20;i++){
 
 	auto seed = chrono::high_resolution_clock::now().time_since_epoch().count();
 	std::mt19937 generator (seed);
@@ -28,7 +37,7 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 	int shrink=0,iter=0;
 	Eigen::MatrixXd simplex; // dim+1,dim //
 	simplex = MatrixXd::NullaryExpr(dim+1,dim,randGen);
-	std::cout << "starting simplex: "<< '\n' <<simplex << '\n';
+	//std::cout << "starting simplex: "<< '\n' <<simplex << '\n';
 
 	Eigen::VectorXd fitness(dim+1), simplex_point(dim);
 
@@ -74,11 +83,6 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 // CALCULATE BARYCENTER //
 		 find_barycentre(dim,m,simplex);
 
-		 double alpha = 1;										// standard value
-		 double gamma = 2;										// standard value
-		 double beta = 0.5;										// standard value
-		 double rho = 0.5;										// standard value
-		 //assert(gamma >1 && beta < 1 && rho < 1);
 // REFLECTED POINT //
 		 r = (1+alpha)*m - alpha*worst;
 		 fitness_refl = fit(dim,r);
@@ -135,22 +139,21 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 		 glbl_best=fitness(0);
 
 // PRINT SCREEN
-		 if (fmod(iter,REPORT_INTERVAL)==0){
-			 cout<<"iter: "<<iter<<"\t\t"<<"best_fitness:"<<fitness(0)<<'\n';
-			 cout<<"simplex "<<iter<<":\n"<<'\n';
-			 std::cout << "GLOBAL BEST:" << glbl_best << '\n';
+		 if (fmod(iter,REPORT_INTERVAL*1000)==0){
+			 cout<<"iter: "<<iter<<"\t\t"<<" Global Best: "
+			 << glbl_best <<"\t\t"<< "local best: " << fitness(0) << '\n';
 		 }
 
 // WRITE TO FILE
-		 if (fmod(iter,REPORT_INTERVAL)==0){
+		 /*if (fmod(iter,REPORT_INTERVAL)==0){
 			 if (result_file){
 			 		result_file << setw(9) <<iter<<"\t"<<
 			 		setprecision(10)<<setw(13)<<fitness(0)<< endl ;
 			 }
 			 else cerr << "Error writing to file on iter:"<<iter<< '\n';
-		 }
+		 }*/
 
-		 if (counter == 10000){
+		 if (counter == rand_restart){
 			 	simplex = MatrixXd::NullaryExpr(dim+1,dim,randGen);
 			 	for (int i=0; i<=dim; i++){
 			 		simplex_point = (simplex.row(i)).transpose();
@@ -159,15 +162,19 @@ int nelderMead(const int& testfcn, const int& bounds,const int& dim, fitVXd fit)
 			 	}
 		 }
 
-	}	while (iter <= ITER_MAX && fitness(0) > 1e-3);
+	}	while (iter <= ITER_MAX && fitness(0) > 1e-1);
 
 	auto time_end = Clock::now();
 	std::chrono::duration<double> time_elapsed = time_end-time_begin;
 	cout << "Time Elapsed: " << time_elapsed.count() << "ms" << '\n';
-
-	cout <<'\n' << "BEST POINT:"<< '\n';
-	cout << simplex << '\n';
+	if ( result_file.is_open() ){
+    result_file << time_elapsed.count()  << endl;
+  } else {cerr<<"ERROR OPENING DAT FILE\n";}
 	std::cout << "BEST FITNESS: "<< fitness(0) << '\n';
+}	// for loop repeat
+
+	//cout <<'\n' << "BEST POINT:"<< '\n';
+	//cout << simplex << '\n';
 return 0;
 }
 
