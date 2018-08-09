@@ -25,38 +25,35 @@ int main (int argc, char* argv[]){
   }
 
 // TAKE COMMAND LINE ARGUEMENT TO REDUCE COMMUNICATION
-    int dim;
-    if (id == 0){
+    int dim = 15;
+    /*if (id == 0){
       cout << "enter search space dimension ( 2<= Dim <="<<DIM_MAX<<")"<<endl;
       while (!(cin >> dim) || dim < 2 || dim > DIM_MAX)
       cout<<" value out of range (2<=Dimension<="<< DIM_MAX << ")"<< '\n';
     }
     MPI_Bcast(&dim,1,MPI_INT,0,MPI_COMM_WORLD);
-
-
+    */
     if (dim==0)
     MPI_Finalize();
-
     srand((unsigned int) time(0));
     fitVXd fit = NULL;        // function pointer for fitness function
     // change function to take testfcn as arguement to remove the user input // 1 : Rastrigin // 2 : Rosenbrock
-
-    int testfcn = 1;
+    int testfcn = 2;
     P_testFCN_choice(testfcn,fit);      // choice of test function
     int bounds = domain_limit(testfcn);     // set domain bounds
-
 // CHOICE OF COOLING SCHEME //
-// 1 , 2 or 3 //
-    const int coolScheme = 1;
-
+    const int coolScheme = 1; // 1 , 2 or 3 //
+    double alpha = 0.99; // .99 for Rosenbrock
+    double beta = 0.2;
 //  - --------------- MAIN ALGO - ----------------------------- //
-      string path ="results/parallel/Sim_Ann_"+  to_string(id) + ".dat";
+      ofstream result_file("results/parallel/PSA_time.dat",ios::app);
+      /*string path ="results/parallel/Sim_Ann_"+  to_string(id) + ".dat";
       ofstream result_file(path);
       if ( result_file.is_open() ){
         result_file << "Iteration \t Fitness Value " << endl ;
-      } else {cerr<<"ERROR OPENING DAT FILE\n";}
-      cout << "Iteration\tFitness Value\t  Best Value\tTemperature\t"
-      "Accept Count\tRe-Anneal Count" << endl;
+      } else {cerr<<"ERROR OPENING DAT FILE\n";}*/
+      //cout << "Iteration\tFitness Value\t  Best Value\tTemperature\t"
+      //"Accept Count\tRe-Anneal Count" << endl;
 
       // random number seeding //
       std::random_device rd;
@@ -125,7 +122,7 @@ int main (int argc, char* argv[]){
                 }
               }
 // MOVE COOLING OUTSIDE // I.E RUN 100 ITER AT SAME TEMPERATURE
-              cooling(coolScheme, k , &temp);
+              cooling(coolScheme, k , &temp,alpha,beta);
 // ------------------------ SEQUENTIAL SIMANN END ------------------------- //
               local_fit.best = lcl_curr_fit;
               local_fit.rank = id;
@@ -140,13 +137,13 @@ int main (int argc, char* argv[]){
             if (!id){
               if (global_fit.best < GLOBAL_MINIMUM)
                   GLOBAL_MINIMUM = global_fit.best;
-              cout << "best fit "<< GLOBAL_MINIMUM << endl;
+              //cout << "best fit "<< GLOBAL_MINIMUM << endl;
             }
-
+            /*
             if (fmod(iter,REPORT_INTERVAL)==0){
               result_file << setw(9) <<iter<<"\t"<<
               setprecision(10)<<setw(13)<<local_fit.best<< endl ;
-            }
+            }*/
           } while(lcl_acnt <= 100 && global_fit.best > 0.1);
 
             // REANNEAL AND RESET PARAMETERS //
@@ -166,6 +163,7 @@ int main (int argc, char* argv[]){
       if (!id){
         cout << "\nbest fit: "<< global_fit.best << endl;
         std::cout << "Time Elapsed: " << time_elapsed.count() << '\n';
+        result_file << time_elapsed.count() << '\n';
       }
       MPI_Finalize();
   return 0;
@@ -189,9 +187,9 @@ void cooling_choice(int * choice){
 
 // k annealing parameter // same as iteration until reannealing //
 // initial temperature set in simAnn.h //
-bool cooling(const int choice, int k, double *temp){
+bool cooling(const int choice, int k, double *temp, double alpha, double beta){
   switch (choice) {
-  case 1: *temp = T0*pow(0.95,k); return 1;  // BEST
+  case 1: *temp = T0*pow(alpha,k); return 1;  // BEST
 
   case 2: *temp = T0/k; return 1;       //fast annealing
 

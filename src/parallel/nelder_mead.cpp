@@ -24,14 +24,14 @@ int main (int argc, char* argv[]){
   }
 
 // TAKE COMMAND LINE ARGUEMENT TO REDUCE COMMUNICATION
-    int dim;
-    if (id == 0){
+    int dim = 8;
+    /*if (id == 0){
       cout << "enter search space dimension ( 2<= Dim <="<<DIM_MAX<<")"<<endl;
       while (!(cin >> dim) || dim < 2 || dim > DIM_MAX)
       cout<<" value out of range (2<=Dimension<="<< DIM_MAX << ")"<< '\n';
     }
     MPI_Bcast(&dim,1,MPI_INT,0,MPI_COMM_WORLD);
-
+    */
     if (dim==0)
     MPI_Finalize();
 
@@ -52,14 +52,20 @@ int main (int argc, char* argv[]){
       double best;
       int rank;
     }local_fit,global_fit;
+         int rand_restart = 100;
+    		 double alpha = 1;										// standard value
+    		 double gamma = 2;										// standard value
+    		 double beta = 0.5;										// standard value
+    		 double rho = 0.5;										// standard value
 
-    string path = "results/parallel/NMEAD_"+  to_string(id) + ".dat";
+    ofstream result_file("results/parallel/PNM_time.dat",ios::app);
+    /*string path = "results/parallel/NMEAD_"+  to_string(id) + ".dat";
 	  ofstream result_file(path);
 	  if ( result_file.is_open() ){
 	    result_file << "Iteration \t Fitness Value " << endl ;
 	  }
 		else {cerr << "ERROR OPENING DAT FILE\n";}
-
+    */
 // BEGIN TIME //
   MPI_Barrier(MPI_COMM_WORLD);
   auto time_begin = Clock::now();
@@ -114,10 +120,6 @@ int main (int argc, char* argv[]){
 // CALCULATE BARYCENTER //
 		 find_barycentre(dim,m,simplex);
 
-		 double alpha = 1;										// standard value
-		 double gamma = 2;										// standard value
-		 double beta = 0.5;										// standard value
-		 double rho = 0.5;										// standard value
 		 //assert(gamma >1 && beta < 1 && rho < 1);
 // REFLECTED POINT //
 		 r = (1+alpha)*m - alpha*worst;
@@ -182,13 +184,13 @@ int main (int argc, char* argv[]){
 		 }
 */
 // WRITE TO FILE
-	 if (fmod(iter,REPORT_INTERVAL)==0){
+	 /*if (fmod(iter,REPORT_INTERVAL)==0){
 			 if (result_file){
 			 		result_file << setw(9) <<iter<<"\t"<<
 			 		setprecision(10)<<setw(13)<<fitness(0)<< endl ;
 			 }
 			 else cerr << "Error writing to file on iter:"<<iter<< '\n';
-		 }
+		 }*/
 
 		 local_fit.best = glbl_best;
 		 local_fit.rank = id;
@@ -196,13 +198,13 @@ int main (int argc, char* argv[]){
    MPI_Allreduce(&local_fit,&global_fit,1,MPI_DOUBLE_INT,MPI_MINLOC,MPI_COMM_WORLD);
    if (fmod(iter,REPORT_INTERVAL)==0){
 	   if (!id){
- 		    std::cout << "global best across proc:" << global_fit.best << '\n';
+    //std::cout << "global best across proc:" << global_fit.best << '\n';
 		 //std::cout << "iter : "<< iter << '\n';
 	   }
    }
 
 // RESET SIMPLEX IF STUCK IN LOCAL MINIMA //
-		 if (counter == 1000000/4){
+		 if (counter == rand_restart){
 			 	simplex = MatrixXd::NullaryExpr(dim+1,dim,randGen);
 			 	for (int i=0; i<=dim; i++){
 			 		simplex_point = (simplex.row(i)).transpose();
@@ -216,12 +218,13 @@ int main (int argc, char* argv[]){
 	MPI_Barrier(MPI_COMM_WORLD);
 	auto time_end = Clock::now();
 	std::chrono::duration<double> time_elapsed = time_end-time_begin;
-	cout << "Time Elapsed: " << time_elapsed.count() << "ms" << '\n';
 
 	if (!id){
-	cout <<'\n' << "BEST POINT:"<< '\n';
+	//cout <<'\n' << "BEST POINT:"<< '\n';
 	//cout << simplex << '\n';
-	std::cout << "BEST FITNESS: "<< global_fit.best << '\n';
+	//std::cout << "BEST FITNESS: "<< global_fit.best << '\n';
+  cout << "Time Elapsed: " << time_elapsed.count() << "ms" << '\n';
+  result_file << time_elapsed.count() <<  '\n';
 	}
 
 	MPI_Finalize();
