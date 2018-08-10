@@ -13,19 +13,19 @@ n=2;
 %n=2;
 % fun = @(x)0.5 + (cos(sin(abs(x(1)*x(1)-x(2)*x(2)))^2)^2 -0.5)/...
 %      (1+0.001*((x(1)*x(1)) + (x(2)*x(2))))^2;
-dim0 = 20;
-dim1 = 22;
+dim0 = 5;
+dim1 = 6;
 dimrange = dim1 - dim0 + 1;
 dimjump = 1;
-reps = 10;
-for n = dim0:dimjump:dim1
+reps = 20;
+for n = dim0:1:dim1
     for i=1:reps
 x0 = rand(1,n); 
  
 %Rosenbrock ND
 x=x0;
-f=@(x,n)RosenbrockNd(x,n);
-% f=@(x,n)RastriginNd(x,n);
+% f=@(x,n)RosenbrockNd(x,n);
+f=@(x,n)RastriginNd(x,n);
 fun=@(x)f(x,n);
 
 % Simulated Annealing
@@ -39,7 +39,7 @@ NMresult = fminsearch(fun,x0);
 % [SAresult,fval] = simulannealbnd(fun,x0,lb,ub,options);
 tSA=toc;
 indx = dimrange-(dim1-n);
-time(indx,i)= tSA*1000
+time(indx,i)= tSA
     end
 end
 

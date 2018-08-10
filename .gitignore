@@ -2,7 +2,7 @@
 intermediate/
 test/
 #ignore executables/plots etc
-*dat
+dat
 *out
 *asv
 *mat
