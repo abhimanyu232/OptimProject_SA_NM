@@ -1,13 +1,3 @@
-## Crash Course in GIT 
-
-**git clone git@gitlab.ethz.ch:bhadaura/OptimisationProject.git** to download 
-the code from github. Needed just once. Or just download using the link.
-
-[15 minute interactive tutorial to get started.](https://try.github.io/levels/1/challenges/1)
-Since I have skipped a lot of the getting started stuff. I used this to get started as well.
-
-[Text Tutorial](https://git-scm.com/docs/gittutorial)
-
 ## Compilation and Execution 
 
 * Place completed .cpp files in *src* folder. Any file not in the src folder *will not* be compiled.
